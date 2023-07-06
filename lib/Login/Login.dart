@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:thrifty_test/SignUp.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thrifty_test/dashboard.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+
+import '../ProfilePage.dart';
+import 'SignUp.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -26,24 +29,33 @@ class _LoginPageState extends State<LoginPage> {
       _errorMessage = '';
     });
 
-    final response = await http.get(
-      Uri.parse('http://localhost:8081/user/get-by-ep/${_emailController
-          .text}&${_passwordController.text}'),
+    final response = await http.post(
+      Uri.parse('http://localhost:8081/login'),
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: {'email': _emailController.text, 'password': _passwordController.text},
     );
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
+      final accessToken = responseData['access_token'];
+      final id = responseData['id'];
 
       if (responseData['status'] == 'success') {
-        Navigator.push(
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', accessToken);
+        await prefs.setInt('id', id);
+
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => TrifhtyShopDashboard()),
+          MaterialPageRoute(builder: (context) => TrifhtyShopDashboard(accessToken: accessToken, id: id)),
+              (route) => false,
         );
       } else {
         setState(() {
           _errorMessage = responseData['status'];
         });
       }
+
     } else {
       setState(() {
         _errorMessage = 'Email dan Password salah silahkan cek kembali';
@@ -55,15 +67,15 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0x0000FF), Color(0xFFE2EBF0)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+          image: DecorationImage(
+            image: AssetImage("images/peakpx.jpg"),
+            fit: BoxFit.cover,
           ),
         ),
         child: Column(
@@ -179,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                if (_formKey.currentState!.validate()) {
+                                if (_formKey.currentState.validate()) {
                                   _signIn();
                                 }
                               },

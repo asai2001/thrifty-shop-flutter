@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void filterProductsByCategory(String? category) {
+  void filterProductsByCategory(String category) {
     if (category == null || category == 'All') {
       setState(() {
         filteredProducts = allProducts;
@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
 class ProductItem extends StatelessWidget {
   final Product product;
 
-  const ProductItem({required this.product});
+  const ProductItem({this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +223,7 @@ class ProductItem extends StatelessWidget {
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
 
-  const ProductDetailScreen({required this.product});
+  const ProductDetailScreen({this.product});
 
   @override
   Widget build(BuildContext context) {

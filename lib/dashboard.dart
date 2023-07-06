@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:thrifty_test/Cart/Cart.dart';
 import 'package:thrifty_test/HomeScreen.dart';
+import 'package:thrifty_test/Login/Login.dart';
+import 'package:thrifty_test/ProfilePage.dart';
 import 'package:thrifty_test/Wishlist/Wishlist.dart';
 
 class TrifhtyShopDashboard extends StatefulWidget {
+  final String accessToken;
+  final int id;
+
+  TrifhtyShopDashboard({this.accessToken, this.id});
+
   @override
   _TrifhtyShopDashboardState createState() => _TrifhtyShopDashboardState();
 }
@@ -16,6 +23,7 @@ class _TrifhtyShopDashboardState extends State<TrifhtyShopDashboard> {
     Wishlist(),
     Cart(),
     NotificationPage(),
+    ProfilePage()
   ];
 
   @override
@@ -68,6 +76,10 @@ class _TrifhtyShopDashboardState extends State<TrifhtyShopDashboard> {
             icon: Icon(Icons.notifications),
             label: 'Notification',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.manage_accounts),
+            label: 'Manage Account',
+          ),
         ],
       ),
     );
@@ -88,11 +100,11 @@ class _TrifhtyShopDashboardState extends State<TrifhtyShopDashboard> {
   }
 }
 
-class CartPage extends StatelessWidget {
+class AccountPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('Cart Page'),
+      child: Text('Account Page'),
     );
   }
 }
@@ -105,3 +117,4 @@ class NotificationPage extends StatelessWidget {
     );
   }
 }
+

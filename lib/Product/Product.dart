@@ -7,12 +7,12 @@ class Product {
   final String category;
 
   Product({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.price,
-    required this.imageUrl,
-    required this.category
+    this.id,
+    this.title,
+    this.description,
+    this.price,
+    this.imageUrl,
+    this.category
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {

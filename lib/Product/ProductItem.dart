@@ -5,7 +5,7 @@ import 'package:thrifty_test/Product/Product.dart';
 class ProductItem extends StatefulWidget {
   final Product product;
 
-  const ProductItem({Key? key, required this.product}) : super(key: key);
+  const ProductItem({Key key, this.product}) : super(key: key);
 
   @override
   _ProductItemState createState() => _ProductItemState();
