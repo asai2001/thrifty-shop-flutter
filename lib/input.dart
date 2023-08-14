@@ -21,24 +21,54 @@ class InputPage extends StatefulWidget {
 
 class _InputPageState extends State<InputPage> {
   List<dynamic> _inputList = [];
+  List<dynamic> _categoryList = [];
+  String? _selectedCategory;
+  List<dynamic> _originalInputList = []; // Store the original list
 
   @override
   void initState() {
     super.initState();
     fetchData();
+    fetchCategories();
   }
 
-
-
   Future<void> fetchData() async {
-    final response =
-    await http.get(Uri.parse('http://localhost:8081/input/vw-find-all'));
+    final response = await http.get(Uri.parse('http://localhost:8081/input/vw-find-all'));
     if (response.statusCode == 200) {
       setState(() {
         _inputList = json.decode(response.body) as List<dynamic>;
+        _originalInputList = List.from(_inputList); // Store the original list
       });
     }
   }
+
+
+  Future<void> fetchCategories() async {
+    final response = await http.get(Uri.parse('http://localhost:8081/elemen/get-all'));
+    if (response.statusCode == 200) {
+      setState(() {
+        _categoryList = json.decode(response.body) as List<dynamic>;
+      });
+    }
+  }
+
+  void _filterInputList() {
+    print("Selected Category: $_selectedCategory");
+
+    setState(() {
+      if (_selectedCategory == null || _selectedCategory!.isEmpty) {
+        _inputList = List.from(_originalInputList); // Reset to original list
+      } else {
+        print("Category List: $_categoryList");
+
+        _inputList = _originalInputList
+            .where((input) => input['namaKategori'] == _selectedCategory)
+            .toList();
+      }
+    });
+  }
+
+
 
   Future<void> deleteInput(int inputId) async {
     final response =
@@ -154,7 +184,6 @@ class _InputPageState extends State<InputPage> {
   }
 
 
-
   Future<Map<String, dynamic>> fetchExistingData(int inputId) async {
     final response =
     await http.get(Uri.parse('http://localhost:8081/input/find-by-id/$inputId'));
@@ -258,6 +287,116 @@ class _InputPageState extends State<InputPage> {
     print('Selected menu: $menu');
   }
 
+  void _showActionsDialog(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.blueGrey,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: IntrinsicWidth( // Tambahkan IntrinsicWidth untuk menyesuaikan lebar otomatis
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: Text(
+                      'Pilih Aksi',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                          showEditInputDialog(context,
+                              _inputList[index]['inputId']);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.blue.withOpacity(0.8),
+                          padding: EdgeInsets.symmetric(vertical: 12.0,
+                              horizontal: 20.0), // Tambahkan padding horizontal
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                        ),
+                        icon: Icon(Icons.edit, size: 24),
+                        // Tambahkan size pada Icon
+                        label: Text(
+                          'Edit',
+                          style: TextStyle(color: Colors.white,
+                              fontFamily: 'Roboto',
+                              fontSize: 18), // Customize font size
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                          confirmDeleteInput(_inputList[index]['inputId']);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.red.withOpacity(0.8),
+                          padding: EdgeInsets.symmetric(vertical: 12.0,
+                              horizontal: 20.0), // Tambahkan padding horizontal
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                        ),
+                        icon: Icon(Icons.delete, size: 24),
+                        // Tambahkan size pada Icon
+                        label: Text(
+                          'Hapus',
+                          style: TextStyle(color: Colors.white,
+                              fontFamily: 'Roboto',
+                              fontSize: 18), // Customize font size
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                          downloadFile(_inputList[index]['inputId']);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.green.withOpacity(0.8),
+                          padding: EdgeInsets.symmetric(vertical: 12.0,
+                              horizontal: 20.0), // Tambahkan padding horizontal
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                        ),
+                        icon: Icon(Icons.download, size: 24),
+                        // Tambahkan size pada Icon
+                        label: Text(
+                          'Unduh',
+                          style: TextStyle(color: Colors.white,
+                              fontFamily: 'Roboto',
+                              fontSize: 18), // Customize font size
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -272,20 +411,66 @@ class _InputPageState extends State<InputPage> {
         padding: EdgeInsets.all(10.0),
         child: Column(
           children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                showCreateInputDialog(context);
-              },
-              icon: Icon(Icons.add),
-              label: Text('Buat Input Baru'),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
-                textStyle: TextStyle(fontSize: 16.0),
-                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        showCreateInputDialog(context);
+                      },
+                      icon: Icon(Icons.add),
+                      label: Text('Buat Input Baru'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.blue,
+                        textStyle: TextStyle(fontSize: 16.0),
+                        padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 16.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                      child: DropdownButton<String?>(
+                        value: _selectedCategory,
+                        hint: Text('Filter by category'),
+                        onChanged: (value) {
+                          print("Selected Category Changed: $value");
+                          setState(() {
+                            _selectedCategory = value;
+                            _filterInputList();
+                          });
+                        },
+                        items: [
+                          DropdownMenuItem<String?>(
+                            value: null,
+                            child: Text('Show All :kategori'),
+                          ),
+                          ..._categoryList.map<DropdownMenuItem<String?>>((category) {
+                            return DropdownMenuItem<String?>(
+                              value: category['namaKategori'],
+                              child: Text(category['namaKategori']),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 16.0),
             Expanded(
@@ -314,72 +499,45 @@ class _InputPageState extends State<InputPage> {
                     ),
                     columns: [
                       DataColumn(
-                        label: Text(
-                          'Input ID',
-                        ),
+                        label: Text('Input ID'),
                       ),
                       DataColumn(
-                        label: Text(
-                          'File',
-                        ),
+                        label: Text('Pernyataan'),
                       ),
                       DataColumn(
-                        label: Text(
-                          'Bobot',
-                        ),
+                        label: Text('File'),
                       ),
                       DataColumn(
-                        label: Text(
-                          'Nilai',
-                        ),
+                        label: Text('Bobot'),
                       ),
                       DataColumn(
-                        label: Text(
-                          'Keterangan',
-                        ),
+                        label: Text('Nilai'),
                       ),
                       DataColumn(
-                        label: Text(
-                          'Actions',
-                        ),
+                        label: Text('Actions'),
                       ),
                     ],
-                    // Ubah _inputList menjadi data yang sesuai
-                    rows: _inputList.map((input) {
+                    rows: _inputList.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      dynamic input = entry.value;
+
                       return DataRow(
                         cells: [
                           DataCell(Text('${input['inputId']}')),
-                          DataCell(Text(input['file'] ?? 'N/A')), // Memberikan placeholder jika file tidak tersedia
-                          DataCell(Text('${input['bobot']}')), // Mengasumsikan 'bobot' diambil dari entitas 'Komponen'
-                          DataCell(Text('${input['nilai']}')), // Mengasumsikan 'nilai' diambil dari entitas 'Komponen'
-                          DataCell(Text('${input['keterangan']}')),
-                          DataCell(Row(
+                          DataCell(Text('${input['pernyataan']}')),
+                          DataCell(Text(input['file'] ?? 'N/A')),
+                          DataCell(Text('${input['bobot']}')),
+                          DataCell(Text('${input['nilai']}')),
+                          DataCell(Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ElevatedButton(
+                              ElevatedButton.icon(
                                 onPressed: () {
-                                  showEditInputDialog(context, input['inputId']);
+                                  _showActionsDialog(context, index);
                                 },
-                                child: Text('Edit'),
-                              ),
-                              SizedBox(width: 8.0),
-                              ElevatedButton(
-                                onPressed: () {
-                                  confirmDeleteInput(input['inputId']);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.red,
-                                ),
-                                child: Text('Delete'),
-                              ),
-                              SizedBox(width: 8.0),
-                              ElevatedButton(
-                                onPressed: () {
-                                  downloadFile(input['inputId']); // Gunakan 'input['inputId']' di sini
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.green,
-                                ),
-                                child: Text('Download'),
+                                icon: Icon(Icons.play_arrow),
+                                label: Text(''),
                               ),
                             ],
                           )),
@@ -395,6 +553,7 @@ class _InputPageState extends State<InputPage> {
       ),
     );
   }
+
 
 
 
@@ -733,4 +892,3 @@ class _EditInputDialogState extends State<EditInputDialog> {
     );
   }
 }
-

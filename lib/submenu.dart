@@ -70,7 +70,13 @@ class _SubmenuState extends State<Submenu> {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: Colors.blue, // Set the background color
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.blue[900]!, Colors.black],
+          ),
+        ),
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -115,23 +121,48 @@ class _SubmenuState extends State<Submenu> {
         });
       },
       child: Material(
-        color: isHovered ? Colors.blue.withOpacity(0.2) : Colors.transparent,
-        child: ListTile(
-          title: Text(
-            title,
-            style: TextStyle(
-              color: isSelected ? Colors.black : Colors.white,
-              fontFamily: 'Futuristic',
-              fontSize: 18,
-            ),
-          ),
-          leading: Icon(
-            icon,
-            color: isSelected ? Colors.black : Colors.white,
-          ),
+        color: Colors.transparent,
+        child: InkWell(
           onTap: () {
             _navigateToPage(title);
           },
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: isSelected
+                  ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.blue[300]!, Colors.blue[100]!],
+              )
+                  : null,
+              border: isSelected
+                  ? Border(
+                left: BorderSide(
+                  color: Colors.white,
+                  width: 5,
+                ),
+              )
+                  : null,
+            ),
+            child: ListTile(
+              title: Text(
+                title,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.grey[400],
+                  fontFamily: 'Roboto',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              leading: Icon(
+                icon,
+                color: isSelected ? Colors.white : Colors.grey[400],
+              ),
+              hoverColor: Colors.blue[300],
+              selectedTileColor: Colors.blue[300],
+              selected: isSelected,
+            ),
+          ),
         ),
       ),
     );
