@@ -1,61 +1,66 @@
+import 'dart:convert';
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttter_akreditasi/submenu.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:data_table_2/data_table_2.dart';
 
-class KategoriElemenPage extends StatefulWidget {
-  const KategoriElemenPage({super.key});
+class TahunPage extends StatefulWidget {
+  const TahunPage({super.key});
+
 
   @override
-  _KategoriElemenPageState createState() => _KategoriElemenPageState();
+  _TahunPageState createState() => _TahunPageState();
 }
 
 
+class _TahunPageState extends State<TahunPage> {
+  late List<Map<String, dynamic>> _tahunList = []; // Inisialisasi dengan list kosong
 
-class _KategoriElemenPageState extends State<KategoriElemenPage> {
-  List<dynamic> _kategoriElemenList = [];
-  List<Map<String, dynamic>> _tahunList = [];
-  int selectedTahun = 0;
 
   @override
   void initState() {
     super.initState();
-    fetchData();
-    _fetchTahunList().then((tahunList) {
-      if (tahunList.isNotEmpty) {
-        setState(() {
-          _tahunList = tahunList;
-          selectedTahun = _tahunList[0]['tahunId'];
-        });
-      }
-    });
+    _getTahunList();
   }
 
-
-
-  Future<void> fetchData() async {
-    final response = await http.get(
-        Uri.parse('http://localhost:8082/vw-elemen/get-all'));
-    if (response.statusCode == 200) {
-      setState(() {
-        _kategoriElemenList = json.decode(response.body) as List<dynamic>;
-      });
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchTahunList() async {
+  Future<void> _getTahunList() async {
     final response = await http.get(Uri.parse('http://localhost:8082/tahun/find-all'));
     if (response.statusCode == 200) {
-      List<dynamic> tahunList = json.decode(response.body) as List<dynamic>;
-      return tahunList.map((tahun) => tahun as Map<String, dynamic>).toList();
+      final List<dynamic> decodedJson = jsonDecode(response.body);
+      setState(() {
+        _tahunList = decodedJson.cast<Map<String, dynamic>>();
+      });
     } else {
-      // Show an error message or handle the error
-      print('Failed to fetch tahun list');
-      return [];
+      throw Exception('Failed to load data');
     }
   }
+
+
+  Future<void> createTahun(Map<String, dynamic> tahunData) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://localhost:8082/tahun/create'),
+    );
+
+    // Add the komponenData as multipart/form-data
+    tahunData.forEach((key, value) {
+      request.fields[key] = value.toString();
+    });
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      // Tahun created successfully
+      // You can add any additional logic here
+      _getTahunList();
+    } else {
+      // Error creating Tahun
+      // You can handle the error or display a message to the user
+    }
+  }
+
 
   void _handleMenuItemSelected(String menu) {
     // Implement the logic based on the selected menu
@@ -63,21 +68,32 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
     print('Selected menu: $menu');
   }
 
+  Future<void> showCreateTahunDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CreateTahunDialog(
+          createTahun: createTahun,
+          tahunList : _tahunList
+        );
+      },
+    );
+  }
 
 
-  Future<void> deleteKategoriElemen(int kategoriElemenId) async {
+  Future<void> deleteTahun(int tahunId) async {
     final response = await http.delete(
-        Uri.parse('http://localhost:8082/elemen/delete/$kategoriElemenId'));
+        Uri.parse('http://localhost:8082/tahun/delete/$tahunId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
-      fetchData();
+      _getTahunList();
     } else {
       // Show an error message or handle the error
       print('Failed to delete kategori elemen');
     }
   }
 
-  Future<void> confirmDeleteKategoriElemen(int kategoriElemenId) async {
+  Future<void> confirmDeleteTahun(int tahunId) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -112,7 +128,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                 ),
                 const SizedBox(height: 16.0),
                 const Text(
-                  'Anda yakin ingin menghapus kategori elemen ini?',
+                  'Anda yakin ingin menghapus tahun ini?',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16.0,
@@ -139,7 +155,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        deleteKategoriElemen(kategoriElemenId);
+                        deleteTahun(tahunId);
                         Navigator.of(context).pop(); // Close the dialog
                       },
                       style: ElevatedButton.styleFrom(
@@ -162,87 +178,20 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
     );
   }
 
-  void showEditKategoriElemenDialog(BuildContext context, int kategoriElemenId) async {
-    Map<String, dynamic> existingData = await fetchExistingData(kategoriElemenId);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CustomDialog(
-          kategoriElemenId: kategoriElemenId,
-          existingData: existingData,
-          editKategoriElemen: editKategoriElemen,
-          selectedtahun: selectedTahun,
-          tahunList: _tahunList,
-
-        );
-      },
-    );
-  }
-
-  Future<void> createKategoriElemen(Map<String, dynamic> kategoriElemenData) async {
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('http://localhost:8082/elemen/create'),
-    );
-
-    // Add the komponenData as multipart/form-data
-    kategoriElemenData.forEach((key, value) {
-      request.fields[key] = value.toString();
-    });
-
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 200) {
-      // Refresh the data after successful creation
-      fetchData();
-    } else {
-      // Show an error message or handle the error
-      print('Failed to create kategori elemen');
-    }
-  }
-
-  Future<Map<String, dynamic>> fetchExistingData(int kategoriElemenId) async {
-    final response = await http.get(
-        Uri.parse('http://localhost:8082/elemen/find-by-id/$kategoriElemenId'));
-    if (response.statusCode == 200) {
-      return json.decode(response.body) as Map<String, dynamic>;
-    } else {
-      // Show an error message or handle the error
-      print('Failed to fetch existing data');
-      return {};
-    }
-  }
-
-  Future<void> editKategoriElemen(int kategoriElemenId,
-      Map<String, dynamic> updatedData) async {
-    var request = http.MultipartRequest(
-      'PUT',
-      Uri.parse('http://localhost:8082/elemen/update/$kategoriElemenId'),
-    );
-
-    // Add input data to request fields
-    updatedData.forEach((key, value) {
-      request.fields[key] = value.toString();
-    });
-
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 200) {
-      // Refresh the data after successful update
-      fetchData();
-    } else {
-      // Show an error message or handle the error
-      print('Failed to update kategori elemen');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Kategori Elemen'),
+        title: const Text('Daftar Tahun'),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue, Color(0xFF1A237E)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       drawer: Submenu(
         onMenuItemSelected: _handleMenuItemSelected,
@@ -253,10 +202,10 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
           children: [
             ElevatedButton.icon(
               onPressed: () {
-                showCreateKategoriElemenDialog(context);
+                showCreateTahunDialog(context);
               },
               icon: const Icon(Icons.add),
-              label: const Text('Buat Kategori Elemen Baru'),
+              label: const Text('Buat Tahun Baru'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 textStyle: const TextStyle(fontSize: 16.0),
@@ -279,7 +228,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-
+                    dataRowHeight: 60,
                     headingRowColor: MaterialStateColor.resolveWith((
                         states) => Colors.blue),
                     headingTextStyle: const TextStyle(
@@ -296,18 +245,15 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                     columns: const [
                       DataColumn2(
                         label: Text(
-                          'Kategori Elemen ID',
+                          'Tahun ID',
                         ),
-                      ),
-                      DataColumn2(
-                        label: Text(
-                          'Nama Kategori',
-                        ),
+                        size: ColumnSize.S,
                       ),
                       DataColumn2(
                         label: Text(
                           'Tahun',
                         ),
+                        size: ColumnSize.L,
                       ),
                       DataColumn(
                         label: Text(
@@ -315,29 +261,36 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                         ),
                       ),
                     ],
-                    rows: _kategoriElemenList.map((kategoriElemen) {
+                    rows: _tahunList.map((tahun) {
                       return DataRow(
                         cells: [
                           DataCell(Text(
-                            '${kategoriElemen['kategoriElemenId']}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            '${tahun['tahunId']}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           )),
-                          DataCell(Text('${kategoriElemen['namaKategori']}')),
-                          DataCell(Text('${kategoriElemen['tahun']}')),
+                          DataCell(Text(
+                            '${tahun['tahun']}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                          )),
                           DataCell(Row(
                             children: [
                               ElevatedButton(
                                 onPressed: () {
-                                  showEditKategoriElemenDialog(
-                                      context, kategoriElemen['kategoriElemenId']);
+                                  showEditTahunDialog(
+                                      context, tahun['tahunId']);
                                 },
                                 child: const Text('Edit'),
                               ),
                               const SizedBox(width: 8.0),
                               ElevatedButton(
                                 onPressed: () {
-                                  confirmDeleteKategoriElemen(
-                                      kategoriElemen['kategoriElemenId']); // Confirm before deleting
+                                  confirmDeleteTahun(
+                                      tahun['tahunId']); // Confirm before deleting
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
@@ -359,35 +312,68 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
     );
   }
 
-  Future<void> showCreateKategoriElemenDialog(BuildContext context) async {
+  Future<Map<String, dynamic>> fetchExistingData(int tahunId) async {
+    final response = await http.get(
+        Uri.parse('http://localhost:8082/tahun/find-by-id/$tahunId'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else {
+      // Show an error message or handle the error
+      print('Failed to fetch existing data');
+      return {};
+    }
+  }
+
+  Future<void> edittahun(int tahunId,
+      Map<String, dynamic> updatedData) async {
+    var request = http.MultipartRequest(
+      'PUT',
+      Uri.parse('http://localhost:8082/tahun/update/$tahunId'),
+    );
+
+    // Add input data to request fields
+    updatedData.forEach((key, value) {
+      request.fields[key] = value.toString();
+    });
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      // Refresh the data after successful update
+      _getTahunList();
+    } else {
+      // Show an error message or handle the error
+      print('Failed to update kategori elemen');
+    }
+  }
+
+  void showEditTahunDialog(BuildContext context, int tahunId) async {
+    Map<String, dynamic> existingData = await fetchExistingData(tahunId);
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return CreateKategoriElemenDialog(
-          createKategoriElemen: createKategoriElemen,
-          // kategoriElemenList: _kategoriElemenList,
-          tahunList: _tahunList,
-          selectedtahun: selectedTahun,
+        return CustomDialog(
+          tahunId: tahunId,
+          existingData: existingData,
+          editTahun: edittahun,
         );
       },
     );
   }
+
 }
 
 class CustomDialog extends StatefulWidget {
-  final int kategoriElemenId;
+  final int tahunId;
   final Map<String, dynamic> existingData;
-  final Function(int, Map<String, dynamic>) editKategoriElemen;
-  final List<Map<String, dynamic>> tahunList;
-  final int selectedtahun; // Make it nullable
+  final Function(int, Map<String, dynamic>) editTahun;
 
   const CustomDialog({
     Key? key,
-    required this.kategoriElemenId,
+    required this.tahunId,
     required this.existingData,
-    required this.editKategoriElemen,
-    required this.selectedtahun,
-    required this.tahunList,
+    required this.editTahun,
   }) : super(key: key);
 
   @override
@@ -395,18 +381,16 @@ class CustomDialog extends StatefulWidget {
 }
 
 class _CustomDialogState extends State<CustomDialog> {
-  late TextEditingController _namaKategoriController;
+  // late TextEditingController _namaKategoriController;
   late TextEditingController _tahunController;
-  int? _selectedTahun;
+
 
   @override
   void initState() {
     super.initState();
-    _namaKategoriController = TextEditingController(
-      text: widget.existingData['namaKategori'].toString(),
+    _tahunController = TextEditingController(
+      text: widget.existingData['tahun'].toString(),
     );
-    _selectedTahun = widget.selectedtahun;
-    // _selectedTahun = widget.selectedtahun;
   }
 
   @override
@@ -433,7 +417,7 @@ class _CustomDialogState extends State<CustomDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Edit Kategori Elemen',
+                'Edit Tahun',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24.0,
@@ -443,10 +427,10 @@ class _CustomDialogState extends State<CustomDialog> {
               ),
               const SizedBox(height: 24.0),
               TextFormField(
-                controller: _namaKategoriController,
+                controller: _tahunController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'Nama Kategori',
+                  labelText: 'Tahun',
                   labelStyle: const TextStyle(color: Colors.white),
                   border: OutlineInputBorder(
                     borderSide: const BorderSide(color: Colors.white),
@@ -463,68 +447,14 @@ class _CustomDialogState extends State<CustomDialog> {
                 ),
                 cursorColor: Colors.white,
               ),
-              const SizedBox(height: 16.0),
-              DropdownButtonFormField<int>(
-                value: _selectedTahun,
-                items: widget.tahunList.map((tahun) {
-                  return DropdownMenuItem<int>(
-                    value: tahun['tahunId'],
-                    child: Text(
-                      tahun['tahun'],
-                      style: GoogleFonts.poppins(
-                          color: Colors.white, fontSize: 16.0),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (selectedValue) {
-                  setState(() {
-                    _selectedTahun =
-                    selectedValue!; // Update the local variable
-                  });
-                },
-                style: const TextStyle(color: Colors.white, fontSize: 16.0),
-                dropdownColor: Color(0xFF1A237E),
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.white,
-                ),
-                elevation: 2,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: 'Tahun',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                  ),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null) {
-                    return "Please select a tahun";
-                  }
-                  return null;
-                },
-              ),
               const SizedBox(height: 32.0),
               ElevatedButton(
                 onPressed: () {
                   Map<String, dynamic> updatedData = {
-                    'namaKategori': _namaKategoriController.text,
-                    'tahunId': _selectedTahun,
+                    'tahun': _tahunController.text,
                   };
-                  widget.editKategoriElemen(
-                      widget.kategoriElemenId, updatedData);
+                  widget.editTahun(
+                      widget.tahunId, updatedData);
                   Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(
@@ -547,36 +477,27 @@ class _CustomDialogState extends State<CustomDialog> {
   }
 }
 
-class CreateKategoriElemenDialog extends StatefulWidget {
-  final Function(Map<String, dynamic>) createKategoriElemen;
-  final List<Map<String, dynamic>> tahunList;
-  final int selectedtahun;
 
-  const CreateKategoriElemenDialog({super.key, 
-    required this.createKategoriElemen,
+
+class CreateTahunDialog extends StatefulWidget {
+  final Function(Map<String, dynamic>) createTahun;
+  final List<Map<String, dynamic>> tahunList;
+
+  const CreateTahunDialog({
+    Key? key,
+    required this.createTahun,
     required this.tahunList,
-    required this.selectedtahun,
-  });
+  }) : super(key: key);
 
   @override
-  _CreateKategoriElemenDialogState createState() =>
-      _CreateKategoriElemenDialogState();
+  _CreateTahunDialogState createState() => _CreateTahunDialogState();
 }
 
-class _CreateKategoriElemenDialogState
-    extends State<CreateKategoriElemenDialog> {
-  late TextEditingController _namaKategoriController;
-  int? _selectedTahun;
-
-  @override
-  void initState() {
-    super.initState();
-    _namaKategoriController = TextEditingController();
-    _selectedTahun = widget.selectedtahun;
-  }
-
+class _CreateTahunDialogState extends State<CreateTahunDialog> {
   @override
   Widget build(BuildContext context) {
+    TextEditingController tahunController = TextEditingController();
+
     return Dialog(
       backgroundColor: Colors.transparent,
       shape: RoundedRectangleBorder(
@@ -598,9 +519,9 @@ class _CreateKategoriElemenDialogState
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Buat Kategori Elemen Baru',
-                style: TextStyle(
+              Text(
+                'Buat Tahun Baru',
+                style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
@@ -609,58 +530,11 @@ class _CreateKategoriElemenDialogState
               ),
               const SizedBox(height: 24.0),
               TextFormField(
-                controller: _namaKategoriController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Nama Kategori',
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                cursorColor: Colors.white,
-              ),
-              const SizedBox(height: 16.0),
-              DropdownButtonFormField<int>(
-                value: _selectedTahun,
-                items: widget.tahunList.map((tahun) {
-                  return DropdownMenuItem<int>(
-                    value: tahun['tahunId'],
-                    child: Text(
-                      tahun['tahun'],
-                      style: GoogleFonts.poppins(color: Colors.white,
-                          fontSize: 16.0),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (selectedValue) {
-                  setState(() {
-                    _selectedTahun = selectedValue; // Update the local variable
-                  });
-                },
-                style: const TextStyle(color: Colors.white, fontSize: 16.0),
-                dropdownColor: Color(0xFF1A237E),
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.white,
-                ),
-                elevation: 2,
-                isExpanded: true,
+                controller: tahunController,
+                style: GoogleFonts.poppins(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Tahun',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                  ),
+                  labelStyle: GoogleFonts.poppins(color: Colors.white),
                   border: OutlineInputBorder(
                     borderSide: const BorderSide(color: Colors.white),
                     borderRadius: BorderRadius.circular(8.0),
@@ -674,26 +548,20 @@ class _CreateKategoriElemenDialogState
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                validator: (value) {
-                  if (value == null) {
-                    return "Please select a tahun";
-                  }
-                  return null;
-                },
+                cursorColor: Colors.white, // Cursor color will be white
               ),
-              const SizedBox(height: 32.0),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
-                  Map<String, dynamic> kategoriElemenData = {
-                    'namaKategori': _namaKategoriController.text,
-                    'tahunId': _selectedTahun,
+                  Map<String, dynamic> tahunData = {
+                    'tahun': int.parse(tahunController.text),
                   };
-                  widget.createKategoriElemen(kategoriElemenData);
+                  widget.createTahun(tahunData);
                   Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  textStyle: const TextStyle(
+                  textStyle: GoogleFonts.poppins(
                       fontSize: 16.0, fontWeight: FontWeight.bold),
                   padding: const EdgeInsets.symmetric(
                       vertical: 16.0, horizontal: 32.0),
@@ -710,3 +578,5 @@ class _CreateKategoriElemenDialogState
     );
   }
 }
+
+

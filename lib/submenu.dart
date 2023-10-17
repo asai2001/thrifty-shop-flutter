@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttter_akreditasi/tahun.dart';
 
 import 'input.dart';
 import 'kategori_elemen.dart';
@@ -7,7 +8,7 @@ import 'komponen.dart';
 class Submenu extends StatefulWidget {
   final Function(String) onMenuItemSelected;
 
-  Submenu({required this.onMenuItemSelected});
+  const Submenu({super.key, required this.onMenuItemSelected});
 
   @override
   _SubmenuState createState() => _SubmenuState();
@@ -20,7 +21,7 @@ class _SubmenuState extends State<Submenu> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => LoadingDialog(),
+      builder: (context) => const LoadingDialog(),
     );
   }
 
@@ -32,7 +33,7 @@ class _SubmenuState extends State<Submenu> {
     _showLoadingDialog(context);
 
     // Simulasi delay sebelum berpindah halaman (Anda bisa mengganti ini dengan proses asinkron sesungguhnya)
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       Navigator.pop(context); // Tutup loading dialog
       widget.onMenuItemSelected(title);
       Navigator.pop(context); // Tutup drawer
@@ -40,7 +41,7 @@ class _SubmenuState extends State<Submenu> {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => InputPage(),
+            pageBuilder: (context, animation, secondaryAnimation) => const InputPage(),
             transitionDuration: Duration.zero,
           ),
         );
@@ -48,7 +49,7 @@ class _SubmenuState extends State<Submenu> {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => KomponenPage(),
+            pageBuilder: (context, animation, secondaryAnimation) => const KomponenPage(),
             transitionDuration: Duration.zero,
           ),
         );
@@ -56,12 +57,19 @@ class _SubmenuState extends State<Submenu> {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => KategoriElemenPage(),
+            pageBuilder: (context, animation, secondaryAnimation) => const KategoriElemenPage(),
             transitionDuration: Duration.zero,
           ),
         );
       } else if (title == 'Tahun') {
         // Implement navigation to the Tahun page here if needed
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const TahunPage(),
+            transitionDuration: Duration.zero,
+          ),
+        );
       }
     });
   }
@@ -80,15 +88,15 @@ class _SubmenuState extends State<Submenu> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            Container(
+            SizedBox(
               height: 150, // Set the height of the drawer header
               child: DrawerHeader(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                 ),
                 child: Center(
                   child: Image.asset(
-                    'simftx2.png', // Replace with your image path
+                    '/home/asai/Documents/fluttter_akreditasi/assets/simftx2.png', // Replace with your image path
                     height: 300,
                     width: 300,
                   ),
@@ -136,7 +144,7 @@ class _SubmenuState extends State<Submenu> {
               )
                   : null,
               border: isSelected
-                  ? Border(
+                  ? const Border(
                 left: BorderSide(
                   color: Colors.white,
                   width: 5,
@@ -170,9 +178,11 @@ class _SubmenuState extends State<Submenu> {
 }
 
 class LoadingDialog extends StatelessWidget {
+  const LoadingDialog({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
+    return const Dialog(
       backgroundColor: Colors.transparent,
       child: Center(
         child: CircularProgressIndicator(),

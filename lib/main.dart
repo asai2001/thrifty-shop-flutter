@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttter_akreditasi/input.dart';
 import 'package:fluttter_akreditasi/kategori_elemen.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import 'komponen.dart';
 
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,9 +22,9 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/input',
       routes: {
-        '/komponen': (context) => KomponenPage(),
-        '/input': (context) => InputPage(),
-        '/elemen': (context) => KategoriElemenPage(),
+        '/komponen': (context) => const KomponenPage(),
+        '/input': (context) => const InputPage(),
+        '/elemen': (context) => const KategoriElemenPage(),
       },
     );
   }

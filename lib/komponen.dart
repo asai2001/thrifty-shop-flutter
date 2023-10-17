@@ -3,9 +3,10 @@ import 'package:fluttter_akreditasi/submenu.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:data_table_2/data_table_2.dart';
 
 class KomponenPage extends StatefulWidget {
+  const KomponenPage({super.key});
+
   @override
   _KomponenPageState createState() => _KomponenPageState();
 }
@@ -31,7 +32,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<void> fetchData() async {
     final response = await http.get(
-        Uri.parse('http://localhost:8081/komponen/vw-find-all'));
+        Uri.parse('http://localhost:8082/komponen/vw-find-all'));
     if (response.statusCode == 200) {
       setState(() {
         _komponenList = json.decode(response.body) as List<dynamic>;
@@ -47,7 +48,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<void> deleteKomponen(int komponenId) async {
     final response = await http.delete(
-        Uri.parse('http://localhost:8081/komponen/delete/$komponenId'));
+        Uri.parse('http://localhost:8082/komponen/delete/$komponenId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
       fetchData();
@@ -67,11 +68,11 @@ class _KomponenPageState extends State<KomponenPage> {
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Container(
-            constraints: BoxConstraints(maxWidth: 400),
-            padding: EdgeInsets.all(16.0),
+            constraints: const BoxConstraints(maxWidth: 400),
+            padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF4C80F1), Color(0xFF0083C7)],
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0288D1), Color(0xFF1A237E)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -81,7 +82,7 @@ class _KomponenPageState extends State<KomponenPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
+                const Text(
                   'Konfirmasi',
                   style: TextStyle(
                     color: Colors.white,
@@ -90,8 +91,8 @@ class _KomponenPageState extends State<KomponenPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 16.0),
-                Text(
+                const SizedBox(height: 16.0),
+                const Text(
                   'Anda yakin ingin menghapus komponen ini?',
                   style: TextStyle(
                     color: Colors.white,
@@ -99,7 +100,7 @@ class _KomponenPageState extends State<KomponenPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 24.0),
+                const SizedBox(height: 24.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -107,30 +108,30 @@ class _KomponenPageState extends State<KomponenPage> {
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
-                      child: Text('Batal'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.grey,
-                        textStyle: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-                        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+                        backgroundColor: Colors.green,
+                        textStyle: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
+                      child: const Text('Batal'),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         deleteKomponen(komponenId); // Convert komponenId to a string
                         Navigator.of(context).pop(); // Close the dialog
                       },
-                      child: Text('Hapus'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red,
-                        textStyle: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-                        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+                        backgroundColor: Colors.red,
+                        textStyle: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
+                      child: const Text('Hapus'),
                     ),
                   ],
                 ),
@@ -160,11 +161,10 @@ class _KomponenPageState extends State<KomponenPage> {
   }
 
 
-
   Future<void> createKomponen(Map<String, dynamic> komponenData) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:8081/komponen/create'),
+      Uri.parse('http://localhost:8082/komponen/create'),
     );
 
     // Add the komponenData as multipart/form-data
@@ -186,7 +186,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<Map<String, dynamic>> fetchExistingData(int komponenId) async {
     final response = await http.get(
-        Uri.parse('http://localhost:8081/komponen/find-by-id/$komponenId'));
+        Uri.parse('http://localhost:8082/komponen/find-by-id/$komponenId'));
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -200,7 +200,7 @@ class _KomponenPageState extends State<KomponenPage> {
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse('http://localhost:8081/komponen/update/$komponenId'),
+      Uri.parse('http://localhost:8082/komponen/update/$komponenId'),
     );
 
     // Add the updated fields as multipart/form-data
@@ -224,31 +224,31 @@ class _KomponenPageState extends State<KomponenPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Daftar Komponen'),
+        title: const Text('Daftar Komponen'),
       ),
       drawer: Submenu(
         onMenuItemSelected: _handleMenuItemSelected,
       ),
       body: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             ElevatedButton.icon(
               onPressed: () {
                 showCreateKomponenDialog(context);
               },
-              icon: Icon(Icons.add),
-              label: Text('Buat Komponen Baru'),
+              icon: const Icon(Icons.add),
+              label: const Text('Buat Komponen Baru'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
-                textStyle: TextStyle(fontSize: 16.0),
-                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                backgroundColor: Colors.blue,
+                textStyle: const TextStyle(fontSize: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -261,23 +261,23 @@ class _KomponenPageState extends State<KomponenPage> {
                     columnSpacing: 12,
                     horizontalMargin: 12,
                     decoration: BoxDecoration(
-                      color: Colors.grey[900],
+                      color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     headingRowColor: MaterialStateColor.resolveWith((
-                        states) => Colors.blue as Color),
-                    headingTextStyle: TextStyle(
+                        states) => Colors.blue),
+                    headingTextStyle: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16.0,
                     ),
                     dataRowColor: MaterialStateColor.resolveWith((
-                        states) => Colors.grey[800] as Color),
-                    dataTextStyle: TextStyle(
-                      color: Colors.white,
+                        states) => Colors.grey[400] as Color),
+                    dataTextStyle: const TextStyle(
+                      color: Colors.black,
                       fontSize: 14.0,
                     ),
-                    columns: [
+                    columns: const [
                       DataColumn(
                         label: Text(
                           'Komponen ID',
@@ -300,6 +300,11 @@ class _KomponenPageState extends State<KomponenPage> {
                       ),
                       DataColumn(
                         label: Text(
+                          'NilaixBobot',
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
                           'Pernyataan',
                         ),
                       ),
@@ -315,11 +320,12 @@ class _KomponenPageState extends State<KomponenPage> {
                         cells: [
                           DataCell(Text(
                             '${komponen['komponenId']}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           )),
                           DataCell(Text('${komponen['namaKategori']}')),
                           DataCell(Text('${komponen['nilai']}')),
                           DataCell(Text('${komponen['bobot']}')),
+                          DataCell(Text('${komponen['nilaixbobot']}')),
                           DataCell(Text('${komponen['pernyataan']}')),
                           DataCell(Row(
                             children: [
@@ -328,18 +334,18 @@ class _KomponenPageState extends State<KomponenPage> {
                                   showEditKomponenDialog(
                                       context, komponen['komponenId']);
                                 },
-                                child: Text('Edit'),
+                                child: const Text('Edit'),
                               ),
-                              SizedBox(width: 8.0),
+                              const SizedBox(width: 8.0),
                               ElevatedButton(
                                 onPressed: () {
                                   confirmDeleteKomponen(
                                       komponen['komponenId']); // Confirm before deleting
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.red,
+                                  backgroundColor: Colors.red,
                                 ),
-                                child: Text('Delete'),
+                                child: const Text('Delete'),
                               ),
                             ],
                           )),
@@ -372,7 +378,7 @@ class _KomponenPageState extends State<KomponenPage> {
 }
 
 Future<List<Map<String, dynamic>>> _fetchKategoriElemenList() async {
-  final response = await http.get(Uri.parse('http://localhost:8081/elemen/get-all'));
+  final response = await http.get(Uri.parse('http://localhost:8082/vw-elemen/get-all'));
   if (response.statusCode == 200) {
     List<dynamic> kategoriElemenList = json.decode(response.body) as List<dynamic>;
     return kategoriElemenList.map((kategori) => kategori as Map<String, dynamic>).toList();
@@ -391,7 +397,7 @@ class CustomDialog extends StatefulWidget {
   final List<Map<String, dynamic>> kategoriElemenList;
   final int selectedKategoriElemen;
 
-  CustomDialog({
+  const CustomDialog({super.key, 
     required this.komponenId,
     required this.existingData,
     required this.editKomponen,
@@ -429,148 +435,175 @@ class _CustomDialogState extends State<CustomDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
       ),
-      child: Container(
-        padding: EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4C80F1), Color(0xFF0083C7)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: FractionallySizedBox(
+        widthFactor: 0.6,
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0288D1), Color(0xFF1A237E)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16.0),
           ),
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Edit Komponen',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Edit Komponen',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 24.0),
-            DropdownButtonFormField<int>(
-              value: _selectedKategoriElemen,
-              items: widget.kategoriElemenList.map((kategori) {
-                return DropdownMenuItem<int>(
-                  value: kategori['kategoriElemenId'],
-                  child: Text(
-                    kategori['namaKategori'],
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 16.0),
+              const SizedBox(height: 24.0),
+              DropdownButtonFormField<int>(
+                value: _selectedKategoriElemen,
+                items: widget.kategoriElemenList.map((kategori) {
+                  return DropdownMenuItem<int>(
+                    value: kategori['kategoriElemenId'],
+                    child: Text(
+                      kategori['namaKategori'],
+                      style: GoogleFonts.poppins(color: Colors.white,
+                          fontSize: 16.0),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (selectedValue) {
+                  setState(() {
+                    _selectedKategoriElemen = selectedValue!;
+                  });
+                },
+                style: GoogleFonts.poppins(color: Colors.white, fontSize: 16.0),
+                dropdownColor: Color(0xFF1A237E),
+                icon: const Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.white,
+                ),
+                elevation: 2,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: 'Kategori Elemen',
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
                   ),
-                );
-              }).toList(),
-              onChanged: (selectedValue) {
-                setState(() {
-                  _selectedKategoriElemen = selectedValue!;
-                });
-              },
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16.0),
-              dropdownColor: Colors.blueGrey[800],
-              icon: Icon(
-                Icons.arrow_drop_down,
-                color: Colors.white,
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null) {
+                    return "Please select a elemen";
+                  }
+                  return null;
+                },
               ),
-              elevation: 2,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: 'Kategori Elemen',
-                labelStyle: GoogleFonts.poppins(color: Colors.white),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: nilaiController,
+                style: GoogleFonts.poppins(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Nilai',
+                  labelStyle: GoogleFonts.poppins(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                cursorColor: Colors.white, // Cursor color will be white
               ),
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              controller: nilaiController,
-              style: GoogleFonts.poppins(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Nilai',
-                labelStyle: GoogleFonts.poppins(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: bobotController,
+                style: GoogleFonts.poppins(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Bobot',
+                  labelStyle: GoogleFonts.poppins(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                cursorColor: Colors.white, // Cursor color will be white
               ),
-              cursorColor: Colors.white, // Cursor color will be white
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              controller: bobotController,
-              style: GoogleFonts.poppins(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Bobot',
-                labelStyle: GoogleFonts.poppins(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: pernyataanController,
+                style: GoogleFonts.poppins(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Pernyataan',
+                  labelStyle: GoogleFonts.poppins(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                cursorColor: Colors.white, // Cursor color will be white
               ),
-              cursorColor: Colors.white, // Cursor color will be white
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              controller: pernyataanController,
-              style: GoogleFonts.poppins(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Pernyataan',
-                labelStyle: GoogleFonts.poppins(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
+              const SizedBox(height: 32.0),
+              ElevatedButton(
+                onPressed: () {
+                  Map<String, dynamic> updatedData = {
+                    'kategoriElemen': _selectedKategoriElemen,
+                    'nilai': nilaiController.text,
+                    'bobot': bobotController.text,
+                    'pernyataan': pernyataanController.text,
+                  };
+                  widget.editKomponen(widget.komponenId, updatedData);
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  textStyle: GoogleFonts.poppins(
+                      fontSize: 16.0, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 32.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                child: const Text('Simpan'),
               ),
-              cursorColor: Colors.white, // Cursor color will be white
-            ),
-            SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: () {
-                Map<String, dynamic> updatedData = {
-                  'kategoriElemen': _selectedKategoriElemen,
-                  'nilai': nilaiController.text,
-                  'bobot': bobotController.text,
-                  'pernyataan': pernyataanController.text,
-                };
-                widget.editKomponen(widget.komponenId, updatedData);
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('Simpan'),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.green,
-                textStyle: GoogleFonts.poppins(fontSize: 16.0, fontWeight: FontWeight.bold),
-                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -583,7 +616,7 @@ class CreateKomponenDialog extends StatefulWidget {
   final List<Map<String, dynamic>> kategoriElemenList;
   final int selectedKategoriElemen;
 
-  CreateKomponenDialog({
+  const CreateKomponenDialog({super.key, 
     required this.createKomponen,
     required this.kategoriElemenList,
     required this.selectedKategoriElemen,
@@ -613,148 +646,176 @@ class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
       ),
-      child: Container(
-        padding: EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4C80F1), Color(0xFF0083C7)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: FractionallySizedBox(
+        widthFactor: 0.6,
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0288D1), Color(0xFF1A237E)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16.0),
           ),
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Buat Komponen Baru',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Buat Komponen Baru',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 24.0),
-            DropdownButtonFormField<int>(
-              value: _selectedKategoriElemen,
-              items: widget.kategoriElemenList.map((kategori) {
-                return DropdownMenuItem<int>(
-                  value: kategori['kategoriElemenId'],
-                  child: Text(
-                    kategori['namaKategori'],
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 16.0),
+              const SizedBox(height: 24.0),
+              DropdownButtonFormField<int>(
+                value: _selectedKategoriElemen,
+                items: widget.kategoriElemenList.map((kategori) {
+                  return DropdownMenuItem<int>(
+                    value: kategori['kategoriElemenId'],
+                    child: Text(
+                      kategori['namaKategori'],
+                      style: GoogleFonts.poppins(color: Colors.white,
+                          fontSize: 16.0),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (selectedValue) {
+                  setState(() {
+                    _selectedKategoriElemen =
+                        selectedValue; // Update the local variable
+                  });
+                },
+                style: GoogleFonts.poppins(color: Colors.white, fontSize: 16.0),
+                dropdownColor: Color(0xFF1A237E),
+                icon: const Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.white,
+                ),
+                elevation: 2,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: 'Kategori Elemen',
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
                   ),
-                );
-              }).toList(),
-              onChanged: (selectedValue) {
-                setState(() {
-                  _selectedKategoriElemen = selectedValue; // Update the local variable
-                });
-              },
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16.0),
-              dropdownColor: Colors.blueGrey[800],
-              icon: Icon(
-                Icons.arrow_drop_down,
-                color: Colors.white,
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null) {
+                    return "Please select a elemen";
+                  }
+                  return null;
+                },
               ),
-              elevation: 2,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: 'Kategori Elemen',
-                labelStyle: GoogleFonts.poppins(color: Colors.white),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: nilaiController,
+                style: GoogleFonts.poppins(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Nilai',
+                  labelStyle: GoogleFonts.poppins(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                cursorColor: Colors.white, // Cursor color will be white
               ),
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              controller: nilaiController,
-              style: GoogleFonts.poppins(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Nilai',
-                labelStyle: GoogleFonts.poppins(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: bobotController,
+                style: GoogleFonts.poppins(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Bobot',
+                  labelStyle: GoogleFonts.poppins(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                cursorColor: Colors.white, // Cursor color will be white
               ),
-              cursorColor: Colors.white, // Cursor color will be white
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              controller: bobotController,
-              style: GoogleFonts.poppins(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Bobot',
-                labelStyle: GoogleFonts.poppins(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: pernyataanController,
+                style: GoogleFonts.poppins(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Pernyataan',
+                  labelStyle: GoogleFonts.poppins(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                cursorColor: Colors.white, // Cursor color will be white
               ),
-              cursorColor: Colors.white, // Cursor color will be white
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              controller: pernyataanController,
-              style: GoogleFonts.poppins(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Pernyataan',
-                labelStyle: GoogleFonts.poppins(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
+              const SizedBox(height: 32.0),
+              ElevatedButton(
+                onPressed: () {
+                  Map<String, dynamic> komponenData = {
+                    'kategoriElemen': _selectedKategoriElemen,
+                    'nilai': nilaiController.text,
+                    'bobot': bobotController.text,
+                    'pernyataan': pernyataanController.text,
+                  };
+                  widget.createKomponen(komponenData);
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  textStyle: GoogleFonts.poppins(
+                      fontSize: 16.0, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 32.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                child: const Text('Simpan'),
               ),
-              cursorColor: Colors.white, // Cursor color will be white
-            ),
-            SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: () {
-                Map<String, dynamic> komponenData = {
-                  'kategoriElemen': _selectedKategoriElemen,
-                  'nilai': nilaiController.text,
-                  'bobot': bobotController.text,
-                  'pernyataan': pernyataanController.text,
-                };
-                widget.createKomponen(komponenData);
-                Navigator.of(context).pop();
-              },
-              child: Text('Simpan'),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.green,
-                textStyle: GoogleFonts.poppins(fontSize: 16.0, fontWeight: FontWeight.bold),
-                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
