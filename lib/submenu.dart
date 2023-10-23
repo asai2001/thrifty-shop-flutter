@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttter_akreditasi/tahun.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import 'input.dart';
 import 'kategori_elemen.dart';
@@ -17,11 +18,19 @@ class Submenu extends StatefulWidget {
 class _SubmenuState extends State<Submenu> {
   String selectedItem = '';
 
+
   void _showLoadingDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const LoadingDialog(),
+      builder: (context) => Center(
+        child: LoadingAnimationWidget.dotsTriangle(
+          // leftDotColor: const Color(0xFF1A1A3F),
+          // rightDotColor: const Color(0xFFEA3799),
+          color: Colors.white,
+          size: 150,
+        ),
+      ),
     );
   }
 
@@ -74,6 +83,7 @@ class _SubmenuState extends State<Submenu> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -85,33 +95,43 @@ class _SubmenuState extends State<Submenu> {
             colors: [Colors.blue[900]!, Colors.black],
           ),
         ),
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: <Widget>[
-            SizedBox(
-              height: 150, // Set the height of the drawer header
-              child: DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
-                child: Center(
-                  child: Image.asset(
-                    '/home/asai/Documents/fluttter_akreditasi/assets/simftx2.png', // Replace with your image path
-                    height: 300,
-                    width: 300,
+            Column(
+              children: [
+                SizedBox(
+                  height: 150, // Set the height of the drawer header
+                  child: DrawerHeader(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: Center(
+                      child: Image.asset(
+                        '/home/asai/Documents/fluttter_akreditasi/assets/simftx2.png',
+                        height: 300,
+                        width: 300,
+                      ),
+                    ),
                   ),
                 ),
+                _buildMenuItem('Input', Icons.input),
+                _buildMenuItem('Komponen', Icons.extension),
+                _buildMenuItem('Kategori Elemen', Icons.category),
+                _buildMenuItem('Tahun', Icons.calendar_today),
+              ],
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: _buildLogoutItem(),
               ),
             ),
-            _buildMenuItem('Input', Icons.input),
-            _buildMenuItem('Komponen', Icons.extension),
-            _buildMenuItem('Kategori Elemen', Icons.category), // Add the "Kategori Elemen" menu item
-            _buildMenuItem('Tahun', Icons.calendar_today),
           ],
         ),
       ),
     );
   }
+
 
   Widget _buildMenuItem(String title, IconData icon) {
     bool isSelected = selectedItem == title;
@@ -177,18 +197,59 @@ class _SubmenuState extends State<Submenu> {
   }
 }
 
-class LoadingDialog extends StatelessWidget {
-  const LoadingDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Dialog(
-      backgroundColor: Colors.transparent,
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
+void _handleLogout() {
+  // Tambahkan kode logout Anda di sini
+  // Misalnya, hapus token otentikasi dan arahkan pengguna kembali ke halaman login.
 }
+
+Widget _buildLogoutItem() {
+  return Material(
+    color: Colors.transparent,
+    child: InkWell(
+      onTap: _handleLogout,
+      child: Container(
+        decoration: BoxDecoration(
+          border: const Border(
+            top: BorderSide(
+              color: Colors.grey,
+              width: 1,
+            ),
+          ),
+        ),
+        child: ListTile(
+          title: Text(
+            'Logged as prodi : click to logout',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Roboto',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          leading: Icon(
+            Icons.logout,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+// class LoadingDialog extends StatelessWidget {
+//   const LoadingDialog({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Dialog(
+//       backgroundColor: Colors.transparent,
+//       child: Center(
+//         child: CircularProgressIndicator(),
+//       ),
+//     );
+//   }
+// }
 
 

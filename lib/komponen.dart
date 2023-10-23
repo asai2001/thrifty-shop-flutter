@@ -240,7 +240,7 @@ class _KomponenPageState extends State<KomponenPage> {
               icon: const Icon(Icons.add),
               label: const Text('Buat Komponen Baru'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: Colors.indigo,
                 textStyle: const TextStyle(fontSize: 16.0),
                 padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                 shape: RoundedRectangleBorder(
@@ -265,7 +265,7 @@ class _KomponenPageState extends State<KomponenPage> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     headingRowColor: MaterialStateColor.resolveWith((
-                        states) => Colors.blue),
+                        states) => Colors.indigo),
                     headingTextStyle: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -441,7 +441,7 @@ class _CustomDialogState extends State<CustomDialog> {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF0288D1), Color(0xFF1A237E)],
+              colors: [Color(0xFF3840AB), Color(0xFF1A237E)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -652,7 +652,7 @@ class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF0288D1), Color(0xFF1A237E)],
+              colors: [Color(0xFF3840AB), Color(0xFF1A237E)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),

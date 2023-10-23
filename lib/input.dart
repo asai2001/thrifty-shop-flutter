@@ -485,7 +485,7 @@ class _InputPageState extends State<InputPage> {
                       icon: const Icon(Icons.add),
                       label: const Text('Buat Input Baru'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.indigo,
                         textStyle: const TextStyle(fontSize: 16.0),
                         padding: const EdgeInsets.symmetric(
                             vertical: 1.0, horizontal: 10.0),
@@ -595,12 +595,12 @@ class _InputPageState extends State<InputPage> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   border: TableBorder.all(
-                    color: Colors.blue,
+                    color: Colors.indigoAccent,
                     width: 1.0,
                     style: BorderStyle.solid,
                   ),
                   headingRowColor: MaterialStateColor.resolveWith((
-                      states) => Colors.lightBlue),
+                      states) => Colors.indigo),
                   headingTextStyle: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -834,7 +834,7 @@ class _InputPageState extends State<InputPage> {
                                     context, _inputList[index]['inputId']);
                               },
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.blue.withOpacity(0.8),
+                                primary: Colors.indigo.withOpacity(0.8),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16.0),
                                 ),
@@ -927,8 +927,8 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
   List<String> originalFileNames = [];
   int? _selectedKomponen;
   final _formKey = GlobalKey<FormState>();
-  Color primaryColor = const Color(0xFF0288D1); // Google Blue
-  Color secondaryColor = const Color(0xFF1A237E); // Google Green
+  Color primaryColor = const Color(0xFF3840AB); // Google Blue
+  Color secondaryColor = const Color(0xFF3840AB); // Google Green
   Color accentColor = const Color(0xF00BCD4); // Google Yellow
   Color backgroundColor = const Color(0xFF282828); // Dark Gray
 
@@ -1261,7 +1261,7 @@ class _EditInputDialogState extends State<EditInputDialog> {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF0288D1), Color(0xFF1A237E)],
+              colors: [Color(0xFF3840AB), Color(0xFF1A237E)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -1381,6 +1381,7 @@ class _EditInputDialogState extends State<EditInputDialog> {
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold,
                     ),
+
                     padding: const EdgeInsets.symmetric(
                       vertical: 16.0,
                       horizontal: 32.0,
@@ -1389,7 +1390,14 @@ class _EditInputDialogState extends State<EditInputDialog> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: const Text('Pilih File'),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.attach_file, color: Colors.white),
+                      SizedBox(width: 8.0),
+                      Text('Pilih File', style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16.0),
                 // Preview of selected files

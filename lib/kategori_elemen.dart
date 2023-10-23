@@ -19,6 +19,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   List<Map<String, dynamic>> _tahunList = [];
   int selectedTahun = 0;
 
+
   @override
   void initState() {
     super.initState();
@@ -258,7 +259,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
               icon: const Icon(Icons.add),
               label: const Text('Buat Kategori Elemen Baru'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: Colors.indigo,
                 textStyle: const TextStyle(fontSize: 16.0),
                 padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                 shape: RoundedRectangleBorder(
@@ -281,7 +282,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                     ),
 
                     headingRowColor: MaterialStateColor.resolveWith((
-                        states) => Colors.blue),
+                        states) => Colors.indigo),
                     headingTextStyle: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -422,7 +423,7 @@ class _CustomDialogState extends State<CustomDialog> {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF0288D1), Color(0xFF1A237E)],
+              colors: [Color(0xFF3840AB), Color(0xFF1A237E)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -588,7 +589,7 @@ class _CreateKategoriElemenDialogState
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF0288D1), Color(0xFF1A237E)],
+              colors: [Color(0xFF3840AB), Color(0xFF1A237E)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
