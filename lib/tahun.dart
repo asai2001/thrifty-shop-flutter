@@ -73,8 +73,8 @@ class _TahunPageState extends State<TahunPage> {
       context: context,
       builder: (BuildContext context) {
         return CreateTahunDialog(
-          createTahun: createTahun,
-          tahunList : _tahunList
+            createTahun: createTahun,
+            tahunList : _tahunList
         );
       },
     );
@@ -578,5 +578,3 @@ class _CreateTahunDialogState extends State<CreateTahunDialog> {
     );
   }
 }
-
-
