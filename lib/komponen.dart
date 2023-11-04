@@ -14,7 +14,7 @@ class KomponenPage extends StatefulWidget {
 class _KomponenPageState extends State<KomponenPage> {
   List<dynamic> _komponenList = [];
   List<Map<String, dynamic>> _kategoriElemenList = [];
-  int selectedKategoriElemen = 0;
+  String selectedKategoriElemen = "0";
 
   @override
   void initState() {
@@ -46,7 +46,7 @@ class _KomponenPageState extends State<KomponenPage> {
     print('Selected menu: $menu');
   }
 
-  Future<void> deleteKomponen(int komponenId) async {
+  Future<void> deleteKomponen(String komponenId) async {
     final response = await http.delete(
         Uri.parse('http://localhost:8082/komponen/delete/$komponenId'));
     if (response.statusCode == 200) {
@@ -58,7 +58,7 @@ class _KomponenPageState extends State<KomponenPage> {
     }
   }
 
-  Future<void> confirmDeleteKomponen(int komponenId) async {
+  Future<void> confirmDeleteKomponen(String komponenId) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -144,7 +144,7 @@ class _KomponenPageState extends State<KomponenPage> {
   }
 
 
-  void showEditKomponenDialog(BuildContext context, int komponenId) async {
+  void showEditKomponenDialog(BuildContext context, String komponenId) async {
     Map<String, dynamic> existingData = await fetchExistingData(komponenId);
     showDialog(
       context: context,
@@ -184,7 +184,7 @@ class _KomponenPageState extends State<KomponenPage> {
     }
   }
 
-  Future<Map<String, dynamic>> fetchExistingData(int komponenId) async {
+  Future<Map<String, dynamic>> fetchExistingData(String komponenId) async {
     final response = await http.get(
         Uri.parse('http://localhost:8082/komponen/find-by-id/$komponenId'));
     if (response.statusCode == 200) {
@@ -196,7 +196,7 @@ class _KomponenPageState extends State<KomponenPage> {
     }
   }
 
-  Future<void> editKomponen(int komponenId,
+  Future<void> editKomponen(String komponenId,
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
@@ -280,7 +280,7 @@ class _KomponenPageState extends State<KomponenPage> {
                     columns: const [
                       DataColumn(
                         label: Text(
-                          'Komponen ID',
+                          'NO',
                         ),
                       ),
                       DataColumn(
@@ -315,11 +315,15 @@ class _KomponenPageState extends State<KomponenPage> {
                       ),
                     ],
                     // Ubah _komponenList menjadi data yang sesuai
-                    rows: _komponenList.map((komponen) {
+                    rows: _komponenList.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      Map<String, dynamic> komponen = entry.value;
+                      int sequentialNumber = _komponenList.length - index;
+
                       return DataRow(
                         cells: [
                           DataCell(Text(
-                            '${komponen['komponenId']}',
+                            '$sequentialNumber', // Sequential number
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           )),
                           DataCell(Text('${komponen['namaKategori']}')),
@@ -391,11 +395,11 @@ Future<List<Map<String, dynamic>>> _fetchKategoriElemenList() async {
 
 
 class CustomDialog extends StatefulWidget {
-  final int komponenId;
+  final String komponenId;
   final Map<String, dynamic> existingData;
-  final Function(int, Map<String, dynamic>) editKomponen;
+  final Function(String, Map<String, dynamic>) editKomponen;
   final List<Map<String, dynamic>> kategoriElemenList;
-  final int selectedKategoriElemen;
+  final String selectedKategoriElemen;
 
   const CustomDialog({super.key, 
     required this.komponenId,
@@ -410,7 +414,7 @@ class CustomDialog extends StatefulWidget {
 }
 
 class _CustomDialogState extends State<CustomDialog> {
-  late int _selectedKategoriElemen;
+  String? _selectedKategoriElemen;
 
   @override
   void initState() {
@@ -461,10 +465,10 @@ class _CustomDialogState extends State<CustomDialog> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24.0),
-              DropdownButtonFormField<int>(
+              DropdownButtonFormField<String>(
                 value: _selectedKategoriElemen,
                 items: widget.kategoriElemenList.map((kategori) {
-                  return DropdownMenuItem<int>(
+                  return DropdownMenuItem<String>(
                     value: kategori['kategoriElemenId'],
                     child: Text(
                       kategori['namaKategori'],
@@ -582,7 +586,7 @@ class _CustomDialogState extends State<CustomDialog> {
               ElevatedButton(
                 onPressed: () {
                   Map<String, dynamic> updatedData = {
-                    'kategoriElemen': _selectedKategoriElemen,
+                    'kategoriElemenId': _selectedKategoriElemen,
                     'nilai': nilaiController.text,
                     'bobot': bobotController.text,
                     'pernyataan': pernyataanController.text,
@@ -614,7 +618,7 @@ class _CustomDialogState extends State<CustomDialog> {
 class CreateKomponenDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) createKomponen;
   final List<Map<String, dynamic>> kategoriElemenList;
-  final int selectedKategoriElemen;
+  final String selectedKategoriElemen;
 
   const CreateKomponenDialog({super.key, 
     required this.createKomponen,
@@ -627,7 +631,7 @@ class CreateKomponenDialog extends StatefulWidget {
 }
 
 class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
-  int? _selectedKategoriElemen;
+  String? _selectedKategoriElemen;
 
   @override
   void initState() {
@@ -672,10 +676,10 @@ class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24.0),
-              DropdownButtonFormField<int>(
+              DropdownButtonFormField<String>(
                 value: _selectedKategoriElemen,
                 items: widget.kategoriElemenList.map((kategori) {
-                  return DropdownMenuItem<int>(
+                  return DropdownMenuItem<String>(
                     value: kategori['kategoriElemenId'],
                     child: Text(
                       kategori['namaKategori'],
@@ -794,7 +798,7 @@ class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
               ElevatedButton(
                 onPressed: () {
                   Map<String, dynamic> komponenData = {
-                    'kategoriElemen': _selectedKategoriElemen,
+                    'kategoriElemenId': _selectedKategoriElemen,
                     'nilai': nilaiController.text,
                     'bobot': bobotController.text,
                     'pernyataan': pernyataanController.text,

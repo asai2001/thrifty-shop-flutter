@@ -17,7 +17,7 @@ class KategoriElemenPage extends StatefulWidget {
 class _KategoriElemenPageState extends State<KategoriElemenPage> {
   List<dynamic> _kategoriElemenList = [];
   List<Map<String, dynamic>> _tahunList = [];
-  int selectedTahun = 0;
+  String selectedTahun = "0";
 
 
   @override
@@ -66,7 +66,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
 
 
 
-  Future<void> deleteKategoriElemen(int kategoriElemenId) async {
+  Future<void> deleteKategoriElemen(String kategoriElemenId) async {
     final response = await http.delete(
         Uri.parse('http://localhost:8082/elemen/delete/$kategoriElemenId'));
     if (response.statusCode == 200) {
@@ -78,7 +78,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
     }
   }
 
-  Future<void> confirmDeleteKategoriElemen(int kategoriElemenId) async {
+  Future<void> confirmDeleteKategoriElemen(String kategoriElemenId) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -163,7 +163,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
     );
   }
 
-  void showEditKategoriElemenDialog(BuildContext context, int kategoriElemenId) async {
+  void showEditKategoriElemenDialog(BuildContext context, String kategoriElemenId) async {
     Map<String, dynamic> existingData = await fetchExistingData(kategoriElemenId);
     showDialog(
       context: context,
@@ -203,7 +203,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
     }
   }
 
-  Future<Map<String, dynamic>> fetchExistingData(int kategoriElemenId) async {
+  Future<Map<String, dynamic>> fetchExistingData(String kategoriElemenId) async {
     final response = await http.get(
         Uri.parse('http://localhost:8082/elemen/find-by-id/$kategoriElemenId'));
     if (response.statusCode == 200) {
@@ -215,7 +215,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
     }
   }
 
-  Future<void> editKategoriElemen(int kategoriElemenId,
+  Future<void> editKategoriElemen(String kategoriElemenId,
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
@@ -297,7 +297,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                     columns: const [
                       DataColumn2(
                         label: Text(
-                          'Kategori Elemen ID',
+                          'NO',
                         ),
                       ),
                       DataColumn2(
@@ -316,11 +316,15 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                         ),
                       ),
                     ],
-                    rows: _kategoriElemenList.map((kategoriElemen) {
+                    rows: _kategoriElemenList.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      Map<String, dynamic> kategoriElemen = entry.value;
+                      int sequentialNumber = _kategoriElemenList.length - index;
+
                       return DataRow(
                         cells: [
                           DataCell(Text(
-                            '${kategoriElemen['kategoriElemenId']}',
+                            '$sequentialNumber', // Sequential number
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           )),
                           DataCell(Text('${kategoriElemen['namaKategori']}')),
@@ -329,16 +333,14 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
-                                  showEditKategoriElemenDialog(
-                                      context, kategoriElemen['kategoriElemenId']);
+                                  showEditKategoriElemenDialog(context, kategoriElemen['kategoriElemenId']);
                                 },
                                 child: const Text('Edit'),
                               ),
                               const SizedBox(width: 8.0),
                               ElevatedButton(
                                 onPressed: () {
-                                  confirmDeleteKategoriElemen(
-                                      kategoriElemen['kategoriElemenId']); // Confirm before deleting
+                                  confirmDeleteKategoriElemen(kategoriElemen['kategoriElemenId']); // Confirm before deleting
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
@@ -376,11 +378,11 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
 }
 
 class CustomDialog extends StatefulWidget {
-  final int kategoriElemenId;
+  final String kategoriElemenId;
   final Map<String, dynamic> existingData;
-  final Function(int, Map<String, dynamic>) editKategoriElemen;
+  final Function(String, Map<String, dynamic>) editKategoriElemen;
   final List<Map<String, dynamic>> tahunList;
-  final int selectedtahun; // Make it nullable
+  final String selectedtahun; // Make it nullable
 
   const CustomDialog({
     Key? key,
@@ -398,7 +400,7 @@ class CustomDialog extends StatefulWidget {
 class _CustomDialogState extends State<CustomDialog> {
   late TextEditingController _namaKategoriController;
   late TextEditingController _tahunController;
-  int? _selectedTahun;
+  String? _selectedTahun;
 
   @override
   void initState() {
@@ -465,10 +467,10 @@ class _CustomDialogState extends State<CustomDialog> {
                 cursorColor: Colors.white,
               ),
               const SizedBox(height: 16.0),
-              DropdownButtonFormField<int>(
+              DropdownButtonFormField<String>(
                 value: _selectedTahun,
                 items: widget.tahunList.map((tahun) {
-                  return DropdownMenuItem<int>(
+                  return DropdownMenuItem<String>(
                     value: tahun['tahunId'],
                     child: Text(
                       tahun['tahun'],
@@ -551,7 +553,7 @@ class _CustomDialogState extends State<CustomDialog> {
 class CreateKategoriElemenDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) createKategoriElemen;
   final List<Map<String, dynamic>> tahunList;
-  final int selectedtahun;
+  final String selectedtahun;
 
   const CreateKategoriElemenDialog({super.key, 
     required this.createKategoriElemen,
@@ -567,7 +569,7 @@ class CreateKategoriElemenDialog extends StatefulWidget {
 class _CreateKategoriElemenDialogState
     extends State<CreateKategoriElemenDialog> {
   late TextEditingController _namaKategoriController;
-  int? _selectedTahun;
+  String? _selectedTahun;
 
   @override
   void initState() {
@@ -631,10 +633,10 @@ class _CreateKategoriElemenDialogState
                 cursorColor: Colors.white,
               ),
               const SizedBox(height: 16.0),
-              DropdownButtonFormField<int>(
+              DropdownButtonFormField<String>(
                 value: _selectedTahun,
                 items: widget.tahunList.map((tahun) {
-                  return DropdownMenuItem<int>(
+                  return DropdownMenuItem<String>(
                     value: tahun['tahunId'],
                     child: Text(
                       tahun['tahun'],

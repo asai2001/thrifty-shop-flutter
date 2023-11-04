@@ -81,7 +81,7 @@ class _TahunPageState extends State<TahunPage> {
   }
 
 
-  Future<void> deleteTahun(int tahunId) async {
+  Future<void> deleteTahun(String tahunId) async {
     final response = await http.delete(
         Uri.parse('http://localhost:8082/tahun/delete/$tahunId'));
     if (response.statusCode == 200) {
@@ -93,7 +93,7 @@ class _TahunPageState extends State<TahunPage> {
     }
   }
 
-  Future<void> confirmDeleteTahun(int tahunId) async {
+  Future<void> confirmDeleteTahun(String tahunId) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -183,15 +183,6 @@ class _TahunPageState extends State<TahunPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Tahun'),
-        // flexibleSpace: Container(
-        //   decoration: BoxDecoration(
-        //     gradient: LinearGradient(
-        //       colors: [Colors.blue, Color(0xFF1A237E)],
-        //       begin: Alignment.topLeft,
-        //       end: Alignment.bottomRight,
-        //     ),
-        //   ),
-        // ),
       ),
       drawer: Submenu(
         onMenuItemSelected: _handleMenuItemSelected,
@@ -229,43 +220,28 @@ class _TahunPageState extends State<TahunPage> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     dataRowHeight: 60,
-                    headingRowColor: MaterialStateColor.resolveWith((
-                        states) => Colors.indigo),
+                    headingRowColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.indigo),
                     headingTextStyle: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16.0,
                     ),
-                    dataRowColor: MaterialStateColor.resolveWith((
-                        states) => Colors.grey[400] as Color),
+                    dataRowColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.grey[400] as Color),
                     dataTextStyle: const TextStyle(
                       color: Colors.black,
                       fontSize: 14.0,
                     ),
-                    columns: const [
-                      DataColumn2(
-                        label: Text(
-                          'Tahun ID',
-                        ),
-                        size: ColumnSize.S,
-                      ),
-                      DataColumn2(
-                        label: Text(
-                          'Tahun',
-                        ),
-                        size: ColumnSize.L,
-                      ),
-                      DataColumn(
-                        label: Text(
-                          'Actions',
-                        ),
-                      ),
-                    ],
-                    rows: _tahunList.map((tahun) {
+                    columns: generateDataColumns(_tahunList),
+                    rows: _tahunList.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      Map<String, dynamic> tahun = entry.value;
+                      int sequentialNumber = _tahunList.length - index;
                       return DataRow(
                         cells: [
                           DataCell(Text(
-                            '${tahun['tahunId']}',
+                            '$sequentialNumber',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -281,16 +257,14 @@ class _TahunPageState extends State<TahunPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
-                                  showEditTahunDialog(
-                                      context, tahun['tahunId']);
+                                  showEditTahunDialog(context, tahun['tahunId']);
                                 },
                                 child: const Text('Edit'),
                               ),
                               const SizedBox(width: 8.0),
                               ElevatedButton(
                                 onPressed: () {
-                                  confirmDeleteTahun(
-                                      tahun['tahunId']); // Confirm before deleting
+                                  confirmDeleteTahun(tahun['tahunId']); // Confirm before deleting
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
@@ -312,7 +286,32 @@ class _TahunPageState extends State<TahunPage> {
     );
   }
 
-  Future<Map<String, dynamic>> fetchExistingData(int tahunId) async {
+  List<DataColumn2> generateDataColumns(List<Map<String, dynamic>> tahunList) {
+    List<DataColumn2> columns = [
+      DataColumn2(
+        label: Text(
+          'No',
+        ),
+        size: ColumnSize.S,
+      ),
+      DataColumn2(
+        label: Text(
+          'Tahun',
+        ),
+        size: ColumnSize.L,
+      ),
+      DataColumn2(
+        label: Text(
+          'Actions',
+        ),
+      ),
+    ];
+
+    return columns;
+  }
+
+
+  Future<Map<String, dynamic>> fetchExistingData(String tahunId) async {
     final response = await http.get(
         Uri.parse('http://localhost:8082/tahun/find-by-id/$tahunId'));
     if (response.statusCode == 200) {
@@ -324,7 +323,7 @@ class _TahunPageState extends State<TahunPage> {
     }
   }
 
-  Future<void> edittahun(int tahunId,
+  Future<void> edittahun(String tahunId,
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
@@ -348,7 +347,7 @@ class _TahunPageState extends State<TahunPage> {
     }
   }
 
-  void showEditTahunDialog(BuildContext context, int tahunId) async {
+  void showEditTahunDialog(BuildContext context, String tahunId) async {
     Map<String, dynamic> existingData = await fetchExistingData(tahunId);
     showDialog(
       context: context,
@@ -365,9 +364,9 @@ class _TahunPageState extends State<TahunPage> {
 }
 
 class CustomDialog extends StatefulWidget {
-  final int tahunId;
+  final String tahunId;
   final Map<String, dynamic> existingData;
-  final Function(int, Map<String, dynamic>) editTahun;
+  final Function(String, Map<String, dynamic>) editTahun;
 
   const CustomDialog({
     Key? key,
@@ -554,7 +553,7 @@ class _CreateTahunDialogState extends State<CreateTahunDialog> {
               ElevatedButton(
                 onPressed: () {
                   Map<String, dynamic> tahunData = {
-                    'tahun': int.parse(tahunController.text),
+                    'tahun': tahunController.text,
                   };
                   widget.createTahun(tahunData);
                   Navigator.of(context).pop();

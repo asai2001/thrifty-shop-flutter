@@ -24,10 +24,10 @@ class _InputPageState extends State<InputPage> {
   List<dynamic> _originalInputList = []; // Store the original list
   String? _selectedYear;
   List<dynamic> _yearList = [];
-  final Map<int, List<String>> _fileUrls = {};
+  final Map<String, List<String>> _fileUrls = {};
   bool _fileUrlsLoaded = false; // Track if file URLs are loaded
   List<Map<String, dynamic>> komponenOptions = [];
-  int selectedKomponen = 0;
+  String selectedKomponen = "0";
 
 
   @override
@@ -70,7 +70,7 @@ class _InputPageState extends State<InputPage> {
     }
   }
 
-  Future<List<String>> fetchFileUrls(int inputId) async {
+  Future<List<String>> fetchFileUrls(String inputId) async {
     final response = await http.get(Uri.parse('http://localhost:8082/input/find-files-by-input/$inputId'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -150,7 +150,7 @@ class _InputPageState extends State<InputPage> {
   }
 
 
-  Future<void> deleteInput(int inputId) async {
+  Future<void> deleteInput(String inputId) async {
     final response =
     await http.delete(Uri.parse('http://localhost:8082/input/delete/$inputId'));
     if (response.statusCode == 200) {
@@ -162,7 +162,7 @@ class _InputPageState extends State<InputPage> {
     }
   }
 
-  Future<void> confirmDeleteInput(int inputId) async {
+  Future<void> confirmDeleteInput(String inputId) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -248,7 +248,7 @@ class _InputPageState extends State<InputPage> {
   }
 
 
-  Future<void> showEditInputDialog(BuildContext context, int inputId) async {
+  Future<void> showEditInputDialog(BuildContext context, String inputId) async {
     Map<String, dynamic> existingData = await fetchExistingData(inputId);
     showDialog(
       context: context,
@@ -267,7 +267,7 @@ class _InputPageState extends State<InputPage> {
 
 
 
-  Future<Map<String, dynamic>> fetchExistingData(int inputId) async {
+  Future<Map<String, dynamic>> fetchExistingData(String inputId) async {
     final response =
     await http.get(Uri.parse('http://localhost:8082/input/find-by-id/$inputId'));
     if (response.statusCode == 200) {
@@ -279,7 +279,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   // Function to handle the file download based on the file URL
-  Future<void> downloadFile(int inputId) async {
+  Future<void> downloadFile(String inputId) async {
     final url = Uri.parse('http://localhost:8082/input/download-by--input-id/$inputId');
 
     try {
@@ -334,7 +334,7 @@ class _InputPageState extends State<InputPage> {
     }
   }
 
-  Future<void> editInput(int inputId, Map<String, dynamic> updatedData, List<Uint8List> fileBytesList,
+  Future<void> editInput(String inputId, Map<String, dynamic> updatedData, List<Uint8List> fileBytesList,
       List<String> originalFileNames) async {
     var request = http.MultipartRequest(
       'PUT',
@@ -618,7 +618,7 @@ class _InputPageState extends State<InputPage> {
                       label: SizedBox(
                         width: 20, // Sesuaikan lebar kolom Inputid di sini
                         child: Text(
-                          'ID',
+                          'NO',
                           style: TextStyle(
                             color: Colors.white,
                           ),
@@ -708,14 +708,10 @@ class _InputPageState extends State<InputPage> {
                       label: Text('Actions'),
                     ),
                   ],
-                  rows: _inputList
-                      .asMap()
-                      .entries
-                      .map((entry) {
+                  rows: _inputList.asMap().entries.map((entry) {
                     int index = entry.key;
                     dynamic input = entry.value;
-
-                    int inputId = input['inputId'];
+                    String inputId = input['inputId'];
                     List<String> fileUrls = _fileUrls[inputId] ?? [];
 
                     // Create a list of file descriptions with their URLs
@@ -750,14 +746,16 @@ class _InputPageState extends State<InputPage> {
                         ),
                       );
                     }
+                    // Calculate the reverse sequential number
+                    int sequentialNumber = _inputList.length - index;
+
                     return DataRow(
                       cells: [
                         DataCell(
                           SizedBox(
                             width: 20,
-                            // Sesuaikan lebar baris inputId sesuai kebutuhan
                             child: Text(
-                              '${input['inputId']}',
+                              '$sequentialNumber', // Sequential number
                               style: const TextStyle(
                                 color: Colors.black,
                               ),
@@ -767,7 +765,6 @@ class _InputPageState extends State<InputPage> {
                         DataCell(
                           SizedBox(
                             width: 100,
-                            // Sesuaikan lebar baris Pernyataan sesuai kebutuhan
                             child: Text(
                               '${input['pernyataan']}',
                               style: const TextStyle(
@@ -779,7 +776,6 @@ class _InputPageState extends State<InputPage> {
                         DataCell(
                           SizedBox(
                             width: 100,
-                            // Sesuaikan lebar baris nilai sesuai kebutuhan
                             child: Text(
                               '${input['keterangan']}',
                               style: const TextStyle(
@@ -792,7 +788,6 @@ class _InputPageState extends State<InputPage> {
                         DataCell(
                           SizedBox(
                             width: 200,
-                            // Sesuaikan lebar baris file sesuai kebutuhan
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: fileWidgets,
@@ -802,7 +797,6 @@ class _InputPageState extends State<InputPage> {
                         DataCell(
                           SizedBox(
                             width: 30,
-                            // Sesuaikan lebar baris nilai sesuai kebutuhan
                             child: Text(
                               '${input['nilai']}',
                               style: const TextStyle(
@@ -815,7 +809,6 @@ class _InputPageState extends State<InputPage> {
                         DataCell(
                           SizedBox(
                             width: 50,
-                            // Sesuaikan lebar baris Pernyataan sesuai kebutuhan
                             child: Text(
                               '${input['bobot']}',
                               style: const TextStyle(
@@ -827,7 +820,7 @@ class _InputPageState extends State<InputPage> {
                         DataCell(Text('${input['nilaixbobot']}')),
                         DataCell(Column(
                           children: [
-                            SizedBox(height: 70.0), // Jarak vertikal antara baris data
+                            SizedBox(height: 70.0), // Vertical spacing between data rows
                             ElevatedButton.icon(
                               onPressed: () {
                                 showEditInputDialog(
@@ -850,11 +843,11 @@ class _InputPageState extends State<InputPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 10.0), // Spasi vertikal
+                            const SizedBox(height: 10.0), // Vertical spacing
                             ElevatedButton.icon(
                               onPressed: () {
                                 confirmDeleteInput(
-                                    _inputList[index]['inputId']); // Konfirmasi sebelum menghapus
+                                    _inputList[index]['inputId']); // Confirm before deleting
                               },
                               style: ElevatedButton.styleFrom(
                                 primary: Colors.red.withOpacity(0.8),
@@ -908,7 +901,7 @@ class _InputPageState extends State<InputPage> {
 class CreateInputDialog extends StatefulWidget {
   final Function(Map<String, dynamic>, List<Uint8List>, List<String>) createInput;
   final List<Map<String, dynamic>> komponenOptions;
-  final int selectedKomponen;
+  final String selectedKomponen;
 
   const CreateInputDialog({
     Key? key,
@@ -925,7 +918,7 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
   TextEditingController keteranganController = TextEditingController();
   List<Uint8List> fileBytesList = [];
   List<String> originalFileNames = [];
-  int? _selectedKomponen;
+  String? _selectedKomponen;
   final _formKey = GlobalKey<FormState>();
   Color primaryColor = const Color(0xFF3840AB); // Google Blue
   Color secondaryColor = const Color(0xFF3840AB); // Google Green
@@ -995,13 +988,14 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
                   },
                 ),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<int>(
+                DropdownButtonFormField<String>(
                   value: _selectedKomponen,
                   items: widget.komponenOptions.map((komponen) {
-                    return DropdownMenuItem<int>(
+                    String hasilText = komponen['pernyataan'] + ' ─●◎●─ ' + komponen['namaKategori'];
+                    return DropdownMenuItem<String>(
                       value: komponen['komponenId'],
                       child: Text(
-                        komponen['pernyataan'],
+                        (hasilText),
                         style: GoogleFonts.poppins(color: Colors.white, fontSize: 16.0),
                       ),
                     );
@@ -1208,11 +1202,11 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
 
 
 class EditInputDialog extends StatefulWidget {
-  final int inputId;
+  final String inputId;
   final Map<String, dynamic> existingData;
-  final Future<void> Function(int, Map<String, dynamic>, List<Uint8List>, List<String>) editInput;
+  final Future<void> Function(String, Map<String, dynamic>, List<Uint8List>, List<String>) editInput;
   final List<Map<String, dynamic>> komponenOptions;
-  final int selectedKomponen;
+  final String selectedKomponen;
 
   const EditInputDialog({
     Key? key,
@@ -1229,7 +1223,7 @@ class EditInputDialog extends StatefulWidget {
 
 class _EditInputDialogState extends State<EditInputDialog> {
   TextEditingController keteranganController = TextEditingController();
-  int? _selectedKomponen;
+  String? _selectedKomponen;
   List<Uint8List> fileBytesList = [];
   List<String> originalFileNames = [];
 
@@ -1308,13 +1302,14 @@ class _EditInputDialogState extends State<EditInputDialog> {
                   cursorColor: Colors.white,
                 ),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<int>(
+                DropdownButtonFormField<String>(
                   value: _selectedKomponen,
                   items: widget.komponenOptions.map((komponen) {
-                    return DropdownMenuItem<int>(
+                    String hasilText = komponen['pernyataan'] + ' ─●◎●─ ' + komponen['namaKategori'];;
+                    return DropdownMenuItem<String>(
                       value: komponen['komponenId'],
-                      child: Text(
-                        komponen['pernyataan'],
+                      child: Text (
+                        (hasilText),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16.0,
