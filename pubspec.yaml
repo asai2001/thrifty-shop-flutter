@@ -26,10 +26,11 @@ dependencies:
   flutter_downloader: ^1.10.5
   path_provider: ^2.0.15
   url_launcher: ^6.1.12
-  flutter_riverpod: ^2.3.6
+  flutter_riverpod: ^2.4.5
   google_fonts: ^4.0.4
   flutter_neumorphic: ^3.2.0
   loading_animation_widget: ^1.2.0+4
+  rflutter_alert: ^2.0.7
 
 
 dev_dependencies:

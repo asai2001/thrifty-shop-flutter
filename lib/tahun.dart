@@ -290,7 +290,7 @@ class _TahunPageState extends State<TahunPage> {
     List<DataColumn2> columns = [
       DataColumn2(
         label: Text(
-          'No',
+          'NO',
         ),
         size: ColumnSize.S,
       ),
@@ -552,11 +552,35 @@ class _CreateTahunDialogState extends State<CreateTahunDialog> {
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
-                  Map<String, dynamic> tahunData = {
-                    'tahun': tahunController.text,
-                  };
-                  widget.createTahun(tahunData);
-                  Navigator.of(context).pop();
+                  String tahun = tahunController.text;
+
+                  if (tahun.isNotEmpty) { // Periksa apakah tahun tidak kosong
+                    Map<String, dynamic> tahunData = {
+                      'tahun': tahun,
+                    };
+                    widget.createTahun(tahunData);
+                    Navigator.of(context).pop();
+                  } else {
+                    // Tampilkan pesan kesalahan jika tahun kosong
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Column( // Menggunakan Column untuk teks berada di atas
+                          children: [
+                            Text(
+                              'Tahun tidak boleh kosong!',
+                              style: TextStyle(
+                                color: Colors.white, // Warna teks
+                                fontSize: 16.0, // Ukuran teks
+                              ),
+                            ),
+                            // Tambahkan widget lain jika diperlukan di bawah teks
+                          ],
+                        ),
+                        backgroundColor: Colors.red, // Warna latar belakang
+                        duration: Duration(seconds: 3), // Durasi tampilan pesan
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,

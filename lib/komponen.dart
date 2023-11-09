@@ -419,7 +419,7 @@ class _CustomDialogState extends State<CustomDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedKategoriElemen = widget.selectedKategoriElemen;
+    _selectedKategoriElemen = widget.existingData['kategoriElemen'];
   }
 
   @override
@@ -797,14 +797,38 @@ class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
               const SizedBox(height: 32.0),
               ElevatedButton(
                 onPressed: () {
-                  Map<String, dynamic> komponenData = {
-                    'kategoriElemenId': _selectedKategoriElemen,
+                  String pernyataan = pernyataanController.text;
+                  String nilai = nilaiController.text;
+                  String bobot = bobotController.text;
+                  if (pernyataan.isNotEmpty && nilai.isNotEmpty && bobot.isNotEmpty){
+              Map<String, dynamic> komponenData = {
+                  'kategoriElemenId': _selectedKategoriElemen,
                     'nilai': nilaiController.text,
                     'bobot': bobotController.text,
                     'pernyataan': pernyataanController.text,
-                  };
-                  widget.createKomponen(komponenData);
-                  Navigator.of(context).pop();
+                   };
+                widget.createKomponen(komponenData);
+                Navigator.of(context).pop();
+                }else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Column( // Menggunakan Column untuk teks berada di atas
+                          children: [
+                            Text(
+                              'Data tidak boleh kosong!',
+                              style: TextStyle(
+                                color: Colors.white, // Warna teks
+                                fontSize: 16.0, // Ukuran teks
+                              ),
+                            ),
+                            // Tambahkan widget lain jika diperlukan di bawah teks
+                          ],
+                        ),
+                        backgroundColor: Colors.red, // Warna latar belakang
+                        duration: Duration(seconds: 3), // Durasi tampilan pesan
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,

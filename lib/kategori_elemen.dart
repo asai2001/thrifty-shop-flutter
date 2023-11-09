@@ -408,7 +408,7 @@ class _CustomDialogState extends State<CustomDialog> {
     _namaKategoriController = TextEditingController(
       text: widget.existingData['namaKategori'].toString(),
     );
-    _selectedTahun = widget.selectedtahun;
+    _selectedTahun = widget.existingData['tahunId'];
     // _selectedTahun = widget.selectedtahun;
   }
 
@@ -630,9 +630,10 @@ class _CreateKategoriElemenDialogState
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                cursorColor: Colors.white,
               ),
               const SizedBox(height: 16.0),
+
+
               DropdownButtonFormField<String>(
                 value: _selectedTahun,
                 items: widget.tahunList.map((tahun) {
@@ -687,13 +688,35 @@ class _CreateKategoriElemenDialogState
               const SizedBox(height: 32.0),
               ElevatedButton(
                 onPressed: () {
-                  Map<String, dynamic> kategoriElemenData = {
-                    'namaKategori': _namaKategoriController.text,
-                    'tahunId': _selectedTahun,
-                  };
-                  widget.createKategoriElemen(kategoriElemenData);
-                  Navigator.of(context).pop();
-                },
+                  String kategori = _namaKategoriController.text;
+                  if (kategori.isNotEmpty) {
+                    Map<String, dynamic> kategoriElemenData = {
+                      'namaKategori': _namaKategoriController.text,
+                      'tahunId': _selectedTahun,
+                    };
+                    widget.createKategoriElemen(kategoriElemenData);
+                    Navigator.of(context).pop();
+                } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Column( // Menggunakan Column untuk teks berada di atas
+                          children: [
+                            Text(
+                              'Data tidak boleh kosong!',
+                              style: TextStyle(
+                                color: Colors.white, // Warna teks
+                                fontSize: 16.0, // Ukuran teks
+                              ),
+                            ),
+                            // Tambahkan widget lain jika diperlukan di bawah teks
+                          ],
+                        ),
+                        backgroundColor: Colors.red, // Warna latar belakang
+                        duration: Duration(seconds: 3), // Durasi tampilan pesan
+                      ),
+                    );
+                  }
+              },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   textStyle: const TextStyle(

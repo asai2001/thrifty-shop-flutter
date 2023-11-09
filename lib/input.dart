@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'dart:typed_data';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -28,6 +29,7 @@ class _InputPageState extends State<InputPage> {
   bool _fileUrlsLoaded = false; // Track if file URLs are loaded
   List<Map<String, dynamic>> komponenOptions = [];
   String selectedKomponen = "0";
+  String selectedNamaKategori = "0";
 
 
   @override
@@ -44,6 +46,33 @@ class _InputPageState extends State<InputPage> {
         });
       }
     });
+  }
+
+  Future<Map<String, dynamic>> findFilesByInputId(String inputId) async {
+    final response = await http.get(Uri.parse('http://localhost:8082/input/find-files-by-input/$inputId'));
+
+    if (response.statusCode == 200) {
+      // Response sukses, kembalikan data dalam bentuk peta
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      return responseData;
+    } else {
+      // Handle kesalahan jika diperlukan
+      throw Exception('Gagal mendapatkan daftar file');
+    }
+  }
+
+  Future<void> deleteFile(String inputId, String filename) async {
+    final response = await http.delete(
+      Uri.parse('http://localhost:8082/file/delete/$inputId/$filename'),
+    );
+
+    if (response.statusCode == 200) {
+      print('File deleted successfully');
+      // Refresh file URLs after deletion
+      await _loadFileUrls();
+    } else {
+      throw Exception('Failed to delete file');
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchKomponenOptions() async {
@@ -70,6 +99,8 @@ class _InputPageState extends State<InputPage> {
     }
   }
 
+
+
   Future<List<String>> fetchFileUrls(String inputId) async {
     final response = await http.get(Uri.parse('http://localhost:8082/input/find-files-by-input/$inputId'));
     if (response.statusCode == 200) {
@@ -86,6 +117,41 @@ class _InputPageState extends State<InputPage> {
       final inputId = input['inputId'];
       final response =
       await http.get(Uri.parse('http://localhost:8082/input/find-files-by-input/$inputId'));
+
+      if (response.statusCode == 200) {
+        final filesResponse = json.decode(response.body);
+
+        if (filesResponse.containsKey('files')) {
+          final fileUrls = filesResponse['files'].cast<String>();
+          _fileUrls[inputId] = fileUrls; // Store file URLs by input ID
+          print('Input ID: $inputId, File URLs: $fileUrls'); // Add this debug print
+        }
+      }
+    }
+
+    // Set _fileUrlsLoaded to true after loading file URLs
+    _fileUrlsLoaded = true;
+
+    // After loading file URLs, trigger a UI update
+    setState(() {});
+  }
+
+  Future<List<String>> fetchFileUrlss(String inputId) async {
+    final response = await http.get(Uri.parse('http://localhost:8082/input/find-files-by-inputs/$inputId'));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      final List<dynamic> files = data['files'];
+      return files.cast<String>();
+    } else {
+      throw Exception('Failed to load file URLs');
+    }
+  }
+
+  Future<void> _loadFileUrlss() async {
+    for (var input in _inputList) {
+      final inputId = input['inputId'];
+      final response =
+      await http.get(Uri.parse('http://localhost:8082/input/find-files-by-inputs/$inputId'));
 
       if (response.statusCode == 200) {
         final filesResponse = json.decode(response.body);
@@ -259,6 +325,7 @@ class _InputPageState extends State<InputPage> {
           existingData: existingData,
           komponenOptions: komponenOptions,
           selectedKomponen: selectedKomponen,
+          // selectedNamaKategori: selectedNamaKategori,
           // downloadFile: downloadFile,
         );
       },
@@ -375,84 +442,12 @@ class _InputPageState extends State<InputPage> {
     print('Selected menu: $menu');
   }
 
-  void _showActionsDialog(BuildContext context, int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0), // Membuat shape box menjadi rounded
-          ),
-          elevation: 0, // Hapus bayangan dialog
-          backgroundColor: Colors.transparent, // Hapus latar belakang dialog
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white, // Ganti latar belakang konten menjadi putih
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Agar konten berukuran sesuai dengan isinya
-              children: [
-                Text(
-                  'Pilih Aksi',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Roboto',
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                    showEditInputDialog(context, _inputList[index]['inputId']);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.blue.withOpacity(0.8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                  ),
-                  icon: Icon(Icons.edit, size: 24, color: Colors.white),
-                  label: Text(
-                    'Edit',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Roboto',
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                    confirmDeleteInput(_inputList[index]['inputId']);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red.withOpacity(0.8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                  ),
-                  icon: Icon(Icons.delete, size: 24, color: Colors.white),
-                  label: Text(
-                    'Hapus',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Roboto',
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  List<String> renameFiles(List<String> originalFileNames) {
+    List<String> renamedFiles = [];
+    for (int i = 0; i < originalFileNames.length; i++) {
+      renamedFiles.add('File ${i + 1}');
+    }
+    return renamedFiles;
   }
 
 
@@ -616,7 +611,7 @@ class _InputPageState extends State<InputPage> {
                   columns: const [
                     DataColumn(
                       label: SizedBox(
-                        width: 20, // Sesuaikan lebar kolom Inputid di sini
+                        width: 30, // Sesuaikan lebar kolom Inputid di sini
                         child: Text(
                           'NO',
                           style: TextStyle(
@@ -757,7 +752,8 @@ class _InputPageState extends State<InputPage> {
                             child: Text(
                               '$sequentialNumber', // Sequential number
                               style: const TextStyle(
-                                color: Colors.black,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold
                               ),
                             ),
                           ),
@@ -765,14 +761,28 @@ class _InputPageState extends State<InputPage> {
                         DataCell(
                           SizedBox(
                             width: 100,
-                            child: Text(
-                              '${input['pernyataan']}',
-                              style: const TextStyle(
-                                color: Colors.black,
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '${input['pernyataan']} ',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: input['namaKategori'],
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
+
                         DataCell(
                           SizedBox(
                             width: 100,
@@ -820,7 +830,8 @@ class _InputPageState extends State<InputPage> {
                         DataCell(Text('${input['nilaixbobot']}')),
                         DataCell(Column(
                           children: [
-                            SizedBox(height: 70.0), // Vertical spacing between data rows
+                            SizedBox(height: 70.0),
+                            // Vertical spacing between data rows
                             ElevatedButton.icon(
                               onPressed: () {
                                 showEditInputDialog(
@@ -843,7 +854,8 @@ class _InputPageState extends State<InputPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 10.0), // Vertical spacing
+                            const SizedBox(height: 10.0),
+                            // Vertical spacing
                             ElevatedButton.icon(
                               onPressed: () {
                                 confirmDeleteInput(
@@ -866,6 +878,82 @@ class _InputPageState extends State<InputPage> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 10.0),
+                            // Vertical spacing
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                try {
+                                  final String inputId = input['inputId'];
+                                  final List<String> fileUrls = await fetchFileUrlss(inputId);
+                                  final List<String> renamedFiles = renameFiles(fileUrls);
+
+                                  print('Input ID: $inputId, File URLs: $fileUrls');
+
+                                  // Tampilkan pop-up menggunakan rflutter_alert
+                                  Alert(
+                                    context: context,
+                                    title: "FILES",
+                                    content: SizedBox(
+                                      height: 200.0,
+                                      width: 300.0,
+                                      child: ListView.builder(
+                                        itemCount: renamedFiles.length,
+                                        itemBuilder: (BuildContext context, int index) {
+                                          return ListTile(
+                                            title: Text(renamedFiles[index]),
+                                            trailing: IconButton(
+                                              icon: Icon(Icons.delete, color: Colors.red),
+                                              onPressed: () async {
+                                                try {
+                                                  final String filename = fileUrls[index];
+                                                  await deleteFile(inputId, filename);
+                                                  setState(() {
+                                                    fileUrls.removeAt(index);
+                                                    renamedFiles.removeAt(index);
+                                                  });
+                                                  Navigator.pop(context); // Tutup pop-up setelah menghapus file
+                                                } catch (e) {
+                                                  print('Error deleting file: $e');
+                                                }
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    buttons: [
+                                      DialogButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text(
+                                          "Close",
+                                          style: TextStyle(color: Colors.white, fontSize: 20),
+                                        ),
+                                      ),
+                                    ],
+                                  ).show();
+                                } catch (e) {
+                                  print('Error fetching file URLs: $e');
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.blue.withOpacity(0.8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                ),
+                              ),
+                              icon: Icon(Icons.file_upload, size: 24, color: Colors.white),
+                              label: Text(
+                                'Atur File',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Roboto',
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+
+
+
                           ],
                         )),
                       ],
@@ -918,12 +1006,15 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
   TextEditingController keteranganController = TextEditingController();
   List<Uint8List> fileBytesList = [];
   List<String> originalFileNames = [];
+  List<Map<String, dynamic>> pernyataanOptions = [];
   String? _selectedKomponen;
+  String? _selectedNamaKategori;
   final _formKey = GlobalKey<FormState>();
   Color primaryColor = const Color(0xFF3840AB); // Google Blue
   Color secondaryColor = const Color(0xFF3840AB); // Google Green
   Color accentColor = const Color(0xF00BCD4); // Google Yellow
   Color backgroundColor = const Color(0xFF282828); // Dark Gray
+
 
   @override
   Widget build(BuildContext context) {
@@ -988,21 +1079,32 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
                   },
                 ),
                 const SizedBox(height: 16),
+
+
+                // Dropdown pertama untuk memilih namaKategori
                 DropdownButtonFormField<String>(
-                  value: _selectedKomponen,
-                  items: widget.komponenOptions.map((komponen) {
-                    String hasilText = komponen['pernyataan'] + ' ─●◎●─ ' + komponen['namaKategori'];
+                  value: _selectedNamaKategori,
+                  items: widget.komponenOptions
+                      .map((komponen) => komponen['namaKategori'] as String)
+                      .toSet()
+                      .map((namaKategori) {
                     return DropdownMenuItem<String>(
-                      value: komponen['komponenId'],
+                      value: namaKategori,
                       child: Text(
-                        (hasilText),
-                        style: GoogleFonts.poppins(color: Colors.white, fontSize: 16.0),
+                        namaKategori,
+                        style: TextStyle(color: Colors.white, fontSize: 16.0),
                       ),
                     );
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      _selectedKomponen = value;
+                      _selectedNamaKategori = value;
+                      // Reset selected pernyataan saat namaKategori berubah
+                      _selectedKomponen = null;
+                      // Perbarui dropdown pernyataan dengan pernyataan yang sesuai
+                      pernyataanOptions = widget.komponenOptions
+                          .where((item) => item['namaKategori'] == value)
+                          .toList();
                     });
                   },
                   dropdownColor: Color(0xFF1A237E),
@@ -1011,7 +1113,7 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
                     color: Colors.white,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Komponen',
+                    labelText: 'Nama Kategori',
                     labelStyle: const TextStyle(color: Colors.white, fontSize: 16.0),
                     border: OutlineInputBorder(
                       borderSide: const BorderSide(color: Colors.white),
@@ -1028,11 +1130,65 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
                   ),
                   validator: (value) {
                     if (value == null) {
-                      return "Please select a Komponen";
+                      return "Please select a Nama Kategori";
                     }
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+
+// Dropdown kedua untuk pernyataan
+                DropdownButtonFormField<String>(
+                  value: _selectedKomponen,
+                  items: widget.komponenOptions
+                      .where((komponen) => komponen['namaKategori'] == _selectedNamaKategori)
+                      .map((komponen) {
+                    return DropdownMenuItem<String>(
+                      value: komponen['komponenId'] as String,
+                      child: Text(
+                        komponen['pernyataan'] as String,
+                        style: TextStyle(color: Colors.white, fontSize: 16.0),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedKomponen = value;
+                    });
+                  },
+                  dropdownColor: Color(0xFF1A237E),
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Pernyataan',
+                    labelStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null) {
+                      return "Please select a pernyataan";
+                    }
+                    return null;
+                  },
+
+                ),
+
                 const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: () async {
@@ -1224,8 +1380,11 @@ class EditInputDialog extends StatefulWidget {
 class _EditInputDialogState extends State<EditInputDialog> {
   TextEditingController keteranganController = TextEditingController();
   String? _selectedKomponen;
+  List<Map<String, dynamic>> pernyataanOptions = [];
+  String? _selectedNamaKategori;
   List<Uint8List> fileBytesList = [];
   List<String> originalFileNames = [];
+
 
   final _formKey = GlobalKey<FormState>();
 
@@ -1233,11 +1392,20 @@ class _EditInputDialogState extends State<EditInputDialog> {
   void initState() {
     super.initState();
     keteranganController.text = widget.existingData['keterangan'].toString();
-    _selectedKomponen = widget.selectedKomponen;
-    // Mengambil daftar file dari respons backend
-    List<Map<String, dynamic>> files = List<Map<String, dynamic>>.from(widget.existingData['file']);
-    // Mengambil nama file dari setiap objek dalam daftar
-    List<String> originalFileNames = files.map((file) => file['file'].toString()).toList();
+    _selectedKomponen = widget.existingData['komponenId'];
+    _selectedNamaKategori = widget.existingData['namaKategori'];
+    if (_selectedNamaKategori != null) {
+      // Jika _selectedNamaKategori sudah dipilih, isi pernyataanOptions
+      pernyataanOptions = widget.komponenOptions
+          .where((item) => item['namaKategori'] == _selectedNamaKategori)
+          .toList();
+    }
+      // Mengambil daftar file dari respons backend
+      List<Map<String, dynamic>> files = List<Map<String, dynamic>>.from(
+          widget.existingData['file']);
+      // Mengambil nama file dari setiap objek dalam daftar
+      List<String> originalFileNames = files.map((file) =>
+          file['file'].toString()).toList();
 
 
   }
@@ -1302,15 +1470,73 @@ class _EditInputDialogState extends State<EditInputDialog> {
                   cursorColor: Colors.white,
                 ),
                 const SizedBox(height: 16),
+
+                // Dropdown pertama untuk memilih namaKategori
+                DropdownButtonFormField<String>(
+                  value: _selectedNamaKategori,
+                  items: widget.komponenOptions
+                      .map((komponen) => komponen['namaKategori'] as String)
+                      .toSet()
+                      .map((namaKategori) {
+                    return DropdownMenuItem<String>(
+                      value: namaKategori,
+                      child: Text(
+                        namaKategori,
+                        style: TextStyle(color: Colors.white, fontSize: 16.0),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedNamaKategori = value;
+                      // Reset selected komponen saat namaKategori berubah
+                      _selectedKomponen = null;
+                      // Perbarui dropdown pernyataan dengan pernyataan yang sesuai
+                      pernyataanOptions = widget.komponenOptions
+                          .where((item) => item['namaKategori'] == value)
+                          .toList();
+                    });
+                  },
+                  dropdownColor: Color(0xFF1A237E),
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Nama Kategori',
+                    labelStyle: const TextStyle(color: Colors.white, fontSize: 16.0),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null) {
+                      return "Please select a Nama Kategori";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+// Dropdown kedua untuk pernyataan
                 DropdownButtonFormField<String>(
                   value: _selectedKomponen,
-                  items: widget.komponenOptions.map((komponen) {
-                    String hasilText = komponen['pernyataan'] + ' ─●◎●─ ' + komponen['namaKategori'];;
+                  items: pernyataanOptions.map((komponen) {
+                    String pernyataanText = komponen['pernyataan'];
                     return DropdownMenuItem<String>(
                       value: komponen['komponenId'],
-                      child: Text (
-                        (hasilText),
-                        style: const TextStyle(
+                      child: Text(
+                        pernyataanText,
+                        style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 16.0,
                         ),
@@ -1328,7 +1554,7 @@ class _EditInputDialogState extends State<EditInputDialog> {
                     color: Colors.white,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Komponen',
+                    labelText: 'Pernyataan',
                     labelStyle: const TextStyle(
                       color: Colors.white,
                       fontSize: 16.0,
@@ -1348,11 +1574,12 @@ class _EditInputDialogState extends State<EditInputDialog> {
                   ),
                   validator: (value) {
                     if (value == null) {
-                      return "Please select a Komponen";
+                      return "Please select a Pernyataan";
                     }
                     return null;
                   },
                 ),
+
                 const SizedBox(height: 32.0),
                 ElevatedButton(
                   onPressed: () async {
@@ -1487,7 +1714,7 @@ class _EditInputDialogState extends State<EditInputDialog> {
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate() && fileBytesList.isNotEmpty) {
+                    if (_formKey.currentState!.validate()) {
                       Map<String, dynamic> updatedData = {
                         'keterangan': keteranganController.text,
                         'komponenId': _selectedKomponen,
