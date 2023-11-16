@@ -2,8 +2,10 @@ version: "3.9"
 services:
   web:
     build: .
-    image: "images/simft_akreditasi:latest"  # Anda mungkin ingin mengganti "iamges" menjadi "images"
+    image: "images/19533119_akreditasi:latest"  # Anda mungkin ingin mengganti "iamges" menjadi "images"
     restart: always
-    container_name: simft_akreditasi
+    container_name: 19533119_akreditasi
     ports:
-      - "80:80"
+      - "89:80"
+    expose:
+      - '89'

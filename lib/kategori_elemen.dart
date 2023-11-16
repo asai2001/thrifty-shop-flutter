@@ -38,7 +38,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
 
   Future<void> fetchData() async {
     final response = await http.get(
-        Uri.parse('http://localhost:8082/vw-elemen/get-all'));
+        Uri.parse('http://localhost:8089/vw-elemen/get-all'));
     if (response.statusCode == 200) {
       setState(() {
         _kategoriElemenList = json.decode(response.body) as List<dynamic>;
@@ -47,7 +47,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchTahunList() async {
-    final response = await http.get(Uri.parse('http://localhost:8082/tahun/find-all'));
+    final response = await http.get(Uri.parse('http://localhost:8089/tahun/find-all'));
     if (response.statusCode == 200) {
       List<dynamic> tahunList = json.decode(response.body) as List<dynamic>;
       return tahunList.map((tahun) => tahun as Map<String, dynamic>).toList();
@@ -68,7 +68,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
 
   Future<void> deleteKategoriElemen(String kategoriElemenId) async {
     final response = await http.delete(
-        Uri.parse('http://localhost:8082/elemen/delete/$kategoriElemenId'));
+        Uri.parse('http://localhost:8089/elemen/delete/$kategoriElemenId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
       fetchData();
@@ -183,7 +183,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   Future<void> createKategoriElemen(Map<String, dynamic> kategoriElemenData) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:8082/elemen/create'),
+      Uri.parse('http://localhost:8089/elemen/create'),
     );
 
     // Add the komponenData as multipart/form-data
@@ -205,7 +205,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
 
   Future<Map<String, dynamic>> fetchExistingData(String kategoriElemenId) async {
     final response = await http.get(
-        Uri.parse('http://localhost:8082/elemen/find-by-id/$kategoriElemenId'));
+        Uri.parse('http://localhost:8089/elemen/find-by-id/$kategoriElemenId'));
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -219,7 +219,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse('http://localhost:8082/elemen/update/$kategoriElemenId'),
+      Uri.parse('http://localhost:8089/elemen/update/$kategoriElemenId'),
     );
 
     // Add input data to request fields
@@ -243,7 +243,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Kategori Elemen'),
+        title: const Text('Daftar Kriteria'),
       ),
       drawer: Submenu(
         onMenuItemSelected: _handleMenuItemSelected,
@@ -257,7 +257,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                 showCreateKategoriElemenDialog(context);
               },
               icon: const Icon(Icons.add),
-              label: const Text('Buat Kategori Elemen Baru'),
+              label: const Text('Buat Kriteria Baru'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
                 textStyle: const TextStyle(fontSize: 16.0),
@@ -302,7 +302,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                       ),
                       DataColumn2(
                         label: Text(
-                          'Nama Kategori',
+                          'Nama Kriteria',
                         ),
                       ),
                       DataColumn2(
@@ -436,7 +436,7 @@ class _CustomDialogState extends State<CustomDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Edit Kategori Elemen',
+                'Edit Kriteria',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24.0,
@@ -449,7 +449,7 @@ class _CustomDialogState extends State<CustomDialog> {
                 controller: _namaKategoriController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'Nama Kategori',
+                  labelText: 'Nama Kriteria',
                   labelStyle: const TextStyle(color: Colors.white),
                   border: OutlineInputBorder(
                     borderSide: const BorderSide(color: Colors.white),
@@ -602,7 +602,7 @@ class _CreateKategoriElemenDialogState
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Buat Kategori Elemen Baru',
+                'Buat Kriteria Baru',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24.0,
@@ -615,7 +615,7 @@ class _CreateKategoriElemenDialogState
                 controller: _namaKategoriController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'Nama Kategori',
+                  labelText: 'Nama Kriteria',
                   labelStyle: const TextStyle(color: Colors.white),
                   border: OutlineInputBorder(
                     borderSide: const BorderSide(color: Colors.white),

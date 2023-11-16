@@ -32,7 +32,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<void> fetchData() async {
     final response = await http.get(
-        Uri.parse('http://localhost:8082/komponen/vw-find-all'));
+        Uri.parse('http://localhost:8089/komponen/vw-find-all'));
     if (response.statusCode == 200) {
       setState(() {
         _komponenList = json.decode(response.body) as List<dynamic>;
@@ -48,7 +48,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<void> deleteKomponen(String komponenId) async {
     final response = await http.delete(
-        Uri.parse('http://localhost:8082/komponen/delete/$komponenId'));
+        Uri.parse('http://localhost:8089/komponen/delete/$komponenId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
       fetchData();
@@ -164,7 +164,7 @@ class _KomponenPageState extends State<KomponenPage> {
   Future<void> createKomponen(Map<String, dynamic> komponenData) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:8082/komponen/create'),
+      Uri.parse('http://localhost:8089/komponen/create'),
     );
 
     // Add the komponenData as multipart/form-data
@@ -186,7 +186,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<Map<String, dynamic>> fetchExistingData(String komponenId) async {
     final response = await http.get(
-        Uri.parse('http://localhost:8082/komponen/find-by-id/$komponenId'));
+        Uri.parse('http://localhost:8089/komponen/find-by-id/$komponenId'));
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -200,7 +200,7 @@ class _KomponenPageState extends State<KomponenPage> {
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse('http://localhost:8082/komponen/update/$komponenId'),
+      Uri.parse('http://localhost:8089/komponen/update/$komponenId'),
     );
 
     // Add the updated fields as multipart/form-data
@@ -224,7 +224,7 @@ class _KomponenPageState extends State<KomponenPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Komponen'),
+        title: const Text('Daftar Pernyataan'),
       ),
       drawer: Submenu(
         onMenuItemSelected: _handleMenuItemSelected,
@@ -238,7 +238,7 @@ class _KomponenPageState extends State<KomponenPage> {
                 showCreateKomponenDialog(context);
               },
               icon: const Icon(Icons.add),
-              label: const Text('Buat Komponen Baru'),
+              label: const Text('Buat Pernyataan Baru'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
                 textStyle: const TextStyle(fontSize: 16.0),
@@ -285,7 +285,7 @@ class _KomponenPageState extends State<KomponenPage> {
                       ),
                       DataColumn(
                         label: Text(
-                          'Nama Kategori',
+                          'Nama Kriteria',
                         ),
                       ),
                       DataColumn(
@@ -382,7 +382,7 @@ class _KomponenPageState extends State<KomponenPage> {
 }
 
 Future<List<Map<String, dynamic>>> _fetchKategoriElemenList() async {
-  final response = await http.get(Uri.parse('http://localhost:8082/vw-elemen/get-all'));
+  final response = await http.get(Uri.parse('http://localhost:8089/vw-elemen/get-all'));
   if (response.statusCode == 200) {
     List<dynamic> kategoriElemenList = json.decode(response.body) as List<dynamic>;
     return kategoriElemenList.map((kategori) => kategori as Map<String, dynamic>).toList();
@@ -456,7 +456,7 @@ class _CustomDialogState extends State<CustomDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Edit Komponen',
+                'Edit Pernyataan',
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 24.0,
@@ -491,7 +491,7 @@ class _CustomDialogState extends State<CustomDialog> {
                 elevation: 2,
                 isExpanded: true,
                 decoration: InputDecoration(
-                  labelText: 'Kategori Elemen',
+                  labelText: 'Kriteria',
                   labelStyle: const TextStyle(
                     color: Colors.white,
                     fontSize: 16.0,
@@ -511,7 +511,7 @@ class _CustomDialogState extends State<CustomDialog> {
                 ),
                 validator: (value) {
                   if (value == null) {
-                    return "Please select a elemen";
+                    return "Please select a Kriteria";
                   }
                   return null;
                 },
@@ -667,7 +667,7 @@ class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Buat Komponen Baru',
+                'Buat Pernyataan Baru',
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 24.0,
@@ -703,7 +703,7 @@ class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
                 elevation: 2,
                 isExpanded: true,
                 decoration: InputDecoration(
-                  labelText: 'Kategori Elemen',
+                  labelText: 'Kriteria',
                   labelStyle: const TextStyle(
                     color: Colors.white,
                     fontSize: 16.0,
@@ -723,7 +723,7 @@ class _CreateKomponenDialogState extends State<CreateKomponenDialog> {
                 ),
                 validator: (value) {
                   if (value == null) {
-                    return "Please select a elemen";
+                    return "Please select a kriteria";
                   }
                   return null;
                 },

@@ -25,7 +25,7 @@ class _TahunPageState extends State<TahunPage> {
   }
 
   Future<void> _getTahunList() async {
-    final response = await http.get(Uri.parse('http://localhost:8082/tahun/find-all'));
+    final response = await http.get(Uri.parse('http://localhost:8089/tahun/find-all'));
     if (response.statusCode == 200) {
       final List<dynamic> decodedJson = jsonDecode(response.body);
       setState(() {
@@ -40,7 +40,7 @@ class _TahunPageState extends State<TahunPage> {
   Future<void> createTahun(Map<String, dynamic> tahunData) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:8082/tahun/create'),
+      Uri.parse('http://localhost:8089/tahun/create'),
     );
 
     // Add the komponenData as multipart/form-data
@@ -83,7 +83,7 @@ class _TahunPageState extends State<TahunPage> {
 
   Future<void> deleteTahun(String tahunId) async {
     final response = await http.delete(
-        Uri.parse('http://localhost:8082/tahun/delete/$tahunId'));
+        Uri.parse('http://localhost:8089/tahun/delete/$tahunId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
       _getTahunList();
@@ -313,7 +313,7 @@ class _TahunPageState extends State<TahunPage> {
 
   Future<Map<String, dynamic>> fetchExistingData(String tahunId) async {
     final response = await http.get(
-        Uri.parse('http://localhost:8082/tahun/find-by-id/$tahunId'));
+        Uri.parse('http://localhost:8089/tahun/find-by-id/$tahunId'));
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -327,7 +327,7 @@ class _TahunPageState extends State<TahunPage> {
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse('http://localhost:8082/tahun/update/$tahunId'),
+      Uri.parse('http://localhost:8089/tahun/update/$tahunId'),
     );
 
     // Add input data to request fields

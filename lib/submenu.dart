@@ -54,7 +54,7 @@ class _SubmenuState extends State<Submenu> {
             transitionDuration: Duration.zero,
           ),
         );
-      } else if (title == 'Komponen') {
+      } else if (title == 'Pernyataan') {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
@@ -62,7 +62,7 @@ class _SubmenuState extends State<Submenu> {
             transitionDuration: Duration.zero,
           ),
         );
-      } else if (title == 'Kategori Elemen') {
+      } else if (title == 'Kriteria') {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
@@ -115,8 +115,8 @@ class _SubmenuState extends State<Submenu> {
                   ),
                 ),
                 _buildMenuItem('Input', Icons.input),
-                _buildMenuItem('Komponen', Icons.extension),
-                _buildMenuItem('Kategori Elemen', Icons.category),
+                _buildMenuItem('Pernyataan', Icons.extension),
+                _buildMenuItem('Kriteria', Icons.category),
                 _buildMenuItem('Tahun', Icons.calendar_today),
               ],
             ),
@@ -235,21 +235,3 @@ Widget _buildLogoutItem() {
     ),
   );
 }
-
-
-
-// class LoadingDialog extends StatelessWidget {
-//   const LoadingDialog({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Dialog(
-//       backgroundColor: Colors.transparent,
-//       child: Center(
-//         child: CircularProgressIndicator(),
-//       ),
-//     );
-//   }
-// }
-
-

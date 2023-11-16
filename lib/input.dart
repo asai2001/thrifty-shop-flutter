@@ -49,7 +49,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<Map<String, dynamic>> findFilesByInputId(String inputId) async {
-    final response = await http.get(Uri.parse('http://localhost:8082/input/find-files-by-input/$inputId'));
+    final response = await http.get(Uri.parse('http://localhost:8089/input/find-files-by-input/$inputId'));
 
     if (response.statusCode == 200) {
       // Response sukses, kembalikan data dalam bentuk peta
@@ -63,7 +63,7 @@ class _InputPageState extends State<InputPage> {
 
   Future<void> deleteFile(String inputId, String filename) async {
     final response = await http.delete(
-      Uri.parse('http://localhost:8082/file/delete/$inputId/$filename'),
+      Uri.parse('http://localhost:8089/file/delete/$inputId/$filename'),
     );
 
     if (response.statusCode == 200) {
@@ -76,7 +76,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<List<Map<String, dynamic>>> fetchKomponenOptions() async {
-    final response = await http.get(Uri.parse('http://localhost:8082/komponen/vw-find-all'));
+    final response = await http.get(Uri.parse('http://localhost:8089/komponen/vw-find-all'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body) as List<dynamic>;
@@ -87,7 +87,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<void> fetchData() async {
-    final response = await http.get(Uri.parse('http://localhost:8082/input/vw-find-all'));
+    final response = await http.get(Uri.parse('http://localhost:8089/input/vw-find-all'));
     if (response.statusCode == 200) {
       setState(() {
         _inputList = json.decode(response.body) as List<dynamic>;
@@ -102,7 +102,7 @@ class _InputPageState extends State<InputPage> {
 
 
   Future<List<String>> fetchFileUrls(String inputId) async {
-    final response = await http.get(Uri.parse('http://localhost:8082/input/find-files-by-input/$inputId'));
+    final response = await http.get(Uri.parse('http://localhost:8089/input/find-files-by-input/$inputId'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
       final List<dynamic> files = data['files'];
@@ -116,7 +116,7 @@ class _InputPageState extends State<InputPage> {
     for (var input in _inputList) {
       final inputId = input['inputId'];
       final response =
-      await http.get(Uri.parse('http://localhost:8082/input/find-files-by-input/$inputId'));
+      await http.get(Uri.parse('http://localhost:8089/input/find-files-by-input/$inputId'));
 
       if (response.statusCode == 200) {
         final filesResponse = json.decode(response.body);
@@ -137,7 +137,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<List<String>> fetchFileUrlss(String inputId) async {
-    final response = await http.get(Uri.parse('http://localhost:8082/input/find-files-by-inputs/$inputId'));
+    final response = await http.get(Uri.parse('http://localhost:8089/input/find-files-by-inputs/$inputId'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
       final List<dynamic> files = data['files'];
@@ -151,7 +151,7 @@ class _InputPageState extends State<InputPage> {
     for (var input in _inputList) {
       final inputId = input['inputId'];
       final response =
-      await http.get(Uri.parse('http://localhost:8082/input/find-files-by-inputs/$inputId'));
+      await http.get(Uri.parse('http://localhost:8089/input/find-files-by-inputs/$inputId'));
 
       if (response.statusCode == 200) {
         final filesResponse = json.decode(response.body);
@@ -174,7 +174,7 @@ class _InputPageState extends State<InputPage> {
 
 
   Future<void> fetchCategories() async {
-    final response = await http.get(Uri.parse('http://localhost:8082/elemen/get-all'));
+    final response = await http.get(Uri.parse('http://localhost:8089/elemen/get-all'));
     if (response.statusCode == 200) {
       setState(() {
         _categoryList = json.decode(response.body) as List<dynamic>;
@@ -183,7 +183,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<void> fetchYears() async {
-    final response = await http.get(Uri.parse('http://localhost:8082/tahun/find-all'));
+    final response = await http.get(Uri.parse('http://localhost:8089/tahun/find-all'));
     if (response.statusCode == 200) {
       setState(() {
         _yearList = json.decode(response.body) as List<dynamic>;
@@ -218,7 +218,7 @@ class _InputPageState extends State<InputPage> {
 
   Future<void> deleteInput(String inputId) async {
     final response =
-    await http.delete(Uri.parse('http://localhost:8082/input/delete/$inputId'));
+    await http.delete(Uri.parse('http://localhost:8089/input/delete/$inputId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
       fetchData();
@@ -336,7 +336,7 @@ class _InputPageState extends State<InputPage> {
 
   Future<Map<String, dynamic>> fetchExistingData(String inputId) async {
     final response =
-    await http.get(Uri.parse('http://localhost:8082/input/find-by-id/$inputId'));
+    await http.get(Uri.parse('http://localhost:8089/input/find-by-id/$inputId'));
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -347,7 +347,7 @@ class _InputPageState extends State<InputPage> {
 
   // Function to handle the file download based on the file URL
   Future<void> downloadFile(String inputId) async {
-    final url = Uri.parse('http://localhost:8082/input/download-by--input-id/$inputId');
+    final url = Uri.parse('http://localhost:8089/input/download-by--input-id/$inputId');
 
     try {
       final response = await http.get(url);
@@ -370,7 +370,7 @@ class _InputPageState extends State<InputPage> {
   Future<void> createInput(Map<String, dynamic> inputData, List<Uint8List> fileBytesList, List<String> originalFileNames) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:8082/input/create'),
+      Uri.parse('http://localhost:8089/input/create'),
     );
 
     // Add input data to request fields
@@ -405,7 +405,7 @@ class _InputPageState extends State<InputPage> {
       List<String> originalFileNames) async {
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse('http://localhost:8082/input/update/$inputId'),
+      Uri.parse('http://localhost:8089/input/update/$inputId'),
     );
 
     // Add input data to request fields
@@ -554,7 +554,7 @@ class _InputPageState extends State<InputPage> {
                             items: [
                               const DropdownMenuItem<String?>(
                                 value: null,
-                                child: Text('Show All :kategori'),
+                                child: Text('Show All :Kriteria'),
                               ),
                               ..._categoryList.map<DropdownMenuItem<String?>>((
                                   category) {
@@ -663,7 +663,7 @@ class _InputPageState extends State<InputPage> {
                     ),
                     DataColumn(
                       label: SizedBox(
-                        // Sesuaikan lebar kolom Pernyataan di sini
+                        width: 50,// Sesuaikan lebar kolom Pernyataan di sini
                         child: Text(
                           'Nilai',
                           style: TextStyle(
@@ -800,42 +800,39 @@ class _InputPageState extends State<InputPage> {
                             width: 400,
                             child: Align(
                               alignment: Alignment.centerRight,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: fileWidgets.map((fileWidget) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                      child: ListTile(
-                                        title: Text(
-                                          'File ${fileWidgets.indexOf(fileWidget) + 1}',
-                                          style: const TextStyle(color: Colors.black),
-                                        ),
-                                        subtitle: GestureDetector(
-                                          onTap: () {
-                                            final index = fileWidgets.indexOf(fileWidget);
-                                            if (fileUrls.isNotEmpty) {
-                                              launch(fileUrls[index]);
-                                            }
-                                          },
-                                          child: Text(
-                                            fileUrls[fileWidgets.indexOf(fileWidget)],
-                                            style: const TextStyle(
-                                              color: Colors.blue,
-                                              decoration: TextDecoration.underline,
-                                            ),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: fileWidgets.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    child: ListTile(
+                                      title: Text(
+                                        'File ${index + 1}',
+                                        style: const TextStyle(color: Colors.black),
+                                      ),
+                                      subtitle: GestureDetector(
+                                        onTap: () {
+                                          if (fileUrls.isNotEmpty) {
+                                            launch(fileUrls[index]);
+                                          }
+                                        },
+                                        child: Text(
+                                          fileUrls[index],
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            decoration: TextDecoration.underline,
                                           ),
                                         ),
                                       ),
-                                    );
-                                  }).toList(),
-                                ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ),
                         ),
+
 
 
                         DataCell(
@@ -1144,7 +1141,7 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
                     color: Colors.white,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Nama Kategori',
+                    labelText: 'Nama Kriteria',
                     labelStyle: const TextStyle(color: Colors.white, fontSize: 16.0),
                     border: OutlineInputBorder(
                       borderSide: const BorderSide(color: Colors.white),
@@ -1161,7 +1158,7 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
                   ),
                   validator: (value) {
                     if (value == null) {
-                      return "Please select a Nama Kategori";
+                      return "Please select a Nama Kriteria";
                     }
                     return null;
                   },
@@ -1534,7 +1531,7 @@ class _EditInputDialogState extends State<EditInputDialog> {
                     color: Colors.white,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Nama Kategori',
+                    labelText: 'Nama Kriteria',
                     labelStyle: const TextStyle(color: Colors.white, fontSize: 16.0),
                     border: OutlineInputBorder(
                       borderSide: const BorderSide(color: Colors.white),
