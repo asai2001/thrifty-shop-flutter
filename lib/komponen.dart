@@ -32,7 +32,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<void> fetchData() async {
     final response = await http.get(
-        Uri.parse('http://localhost:8089/komponen/vw-find-all'));
+        Uri.parse('http://192.168.155.110:8089/komponen/vw-find-all'));
     if (response.statusCode == 200) {
       setState(() {
         _komponenList = json.decode(response.body) as List<dynamic>;
@@ -48,7 +48,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<void> deleteKomponen(String komponenId) async {
     final response = await http.delete(
-        Uri.parse('http://localhost:8089/komponen/delete/$komponenId'));
+        Uri.parse('http://192.168.155.110:8089/komponen/delete/$komponenId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
       fetchData();
@@ -164,7 +164,7 @@ class _KomponenPageState extends State<KomponenPage> {
   Future<void> createKomponen(Map<String, dynamic> komponenData) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:8089/komponen/create'),
+      Uri.parse('http://192.168.155.110:8089/komponen/create'),
     );
 
     // Add the komponenData as multipart/form-data
@@ -186,7 +186,7 @@ class _KomponenPageState extends State<KomponenPage> {
 
   Future<Map<String, dynamic>> fetchExistingData(String komponenId) async {
     final response = await http.get(
-        Uri.parse('http://localhost:8089/komponen/find-by-id/$komponenId'));
+        Uri.parse('http://192.168.155.110:8089/komponen/find-by-id/$komponenId'));
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -200,7 +200,7 @@ class _KomponenPageState extends State<KomponenPage> {
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse('http://localhost:8089/komponen/update/$komponenId'),
+      Uri.parse('http://192.168.155.110:8089/komponen/update/$komponenId'),
     );
 
     // Add the updated fields as multipart/form-data
@@ -382,7 +382,7 @@ class _KomponenPageState extends State<KomponenPage> {
 }
 
 Future<List<Map<String, dynamic>>> _fetchKategoriElemenList() async {
-  final response = await http.get(Uri.parse('http://localhost:8089/vw-elemen/get-all'));
+  final response = await http.get(Uri.parse('http://192.168.155.110:8089/vw-elemen/get-all'));
   if (response.statusCode == 200) {
     List<dynamic> kategoriElemenList = json.decode(response.body) as List<dynamic>;
     return kategoriElemenList.map((kategori) => kategori as Map<String, dynamic>).toList();

@@ -49,7 +49,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<Map<String, dynamic>> findFilesByInputId(String inputId) async {
-    final response = await http.get(Uri.parse('http://localhost:8089/input/find-files-by-input/$inputId'));
+    final response = await http.get(Uri.parse('http://192.168.155.110:8089/input/find-files-by-input/$inputId'));
 
     if (response.statusCode == 200) {
       // Response sukses, kembalikan data dalam bentuk peta
@@ -63,7 +63,7 @@ class _InputPageState extends State<InputPage> {
 
   Future<void> deleteFile(String inputId, String filename) async {
     final response = await http.delete(
-      Uri.parse('http://localhost:8089/file/delete/$inputId/$filename'),
+      Uri.parse('http://192.168.155.110:8089/file/delete/$inputId/$filename'),
     );
 
     if (response.statusCode == 200) {
@@ -76,7 +76,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<List<Map<String, dynamic>>> fetchKomponenOptions() async {
-    final response = await http.get(Uri.parse('http://localhost:8089/komponen/vw-find-all'));
+    final response = await http.get(Uri.parse('http://192.168.155.110:8089/komponen/vw-find-all'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body) as List<dynamic>;
@@ -87,7 +87,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<void> fetchData() async {
-    final response = await http.get(Uri.parse('http://localhost:8089/input/vw-find-all'));
+    final response = await http.get(Uri.parse('http://192.168.155.110:8089/input/vw-find-all'));
     if (response.statusCode == 200) {
       setState(() {
         _inputList = json.decode(response.body) as List<dynamic>;
@@ -102,7 +102,7 @@ class _InputPageState extends State<InputPage> {
 
 
   Future<List<String>> fetchFileUrls(String inputId) async {
-    final response = await http.get(Uri.parse('http://localhost:8089/input/find-files-by-input/$inputId'));
+    final response = await http.get(Uri.parse('http://192.168.155.110:8089/input/find-files-by-input/$inputId'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
       final List<dynamic> files = data['files'];
@@ -116,7 +116,7 @@ class _InputPageState extends State<InputPage> {
     for (var input in _inputList) {
       final inputId = input['inputId'];
       final response =
-      await http.get(Uri.parse('http://localhost:8089/input/find-files-by-input/$inputId'));
+      await http.get(Uri.parse('http://192.168.155.110:8089/input/find-files-by-input/$inputId'));
 
       if (response.statusCode == 200) {
         final filesResponse = json.decode(response.body);
@@ -137,7 +137,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<List<String>> fetchFileUrlss(String inputId) async {
-    final response = await http.get(Uri.parse('http://localhost:8089/input/find-files-by-inputs/$inputId'));
+    final response = await http.get(Uri.parse('http://192.168.155.110:8089/input/find-files-by-inputs/$inputId'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
       final List<dynamic> files = data['files'];
@@ -151,7 +151,7 @@ class _InputPageState extends State<InputPage> {
     for (var input in _inputList) {
       final inputId = input['inputId'];
       final response =
-      await http.get(Uri.parse('http://localhost:8089/input/find-files-by-inputs/$inputId'));
+      await http.get(Uri.parse('http://192.168.155.110:8089/input/find-files-by-inputs/$inputId'));
 
       if (response.statusCode == 200) {
         final filesResponse = json.decode(response.body);
@@ -174,7 +174,7 @@ class _InputPageState extends State<InputPage> {
 
 
   Future<void> fetchCategories() async {
-    final response = await http.get(Uri.parse('http://localhost:8089/elemen/get-all'));
+    final response = await http.get(Uri.parse('http://192.168.155.110:8089/elemen/get-all'));
     if (response.statusCode == 200) {
       setState(() {
         _categoryList = json.decode(response.body) as List<dynamic>;
@@ -183,7 +183,7 @@ class _InputPageState extends State<InputPage> {
   }
 
   Future<void> fetchYears() async {
-    final response = await http.get(Uri.parse('http://localhost:8089/tahun/find-all'));
+    final response = await http.get(Uri.parse('http://192.168.155.110:8089/tahun/find-all'));
     if (response.statusCode == 200) {
       setState(() {
         _yearList = json.decode(response.body) as List<dynamic>;
@@ -218,7 +218,7 @@ class _InputPageState extends State<InputPage> {
 
   Future<void> deleteInput(String inputId) async {
     final response =
-    await http.delete(Uri.parse('http://localhost:8089/input/delete/$inputId'));
+    await http.delete(Uri.parse('http://192.168.155.110:8089/input/delete/$inputId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
       fetchData();
@@ -336,7 +336,7 @@ class _InputPageState extends State<InputPage> {
 
   Future<Map<String, dynamic>> fetchExistingData(String inputId) async {
     final response =
-    await http.get(Uri.parse('http://localhost:8089/input/find-by-id/$inputId'));
+    await http.get(Uri.parse('http://192.168.155.110:8089/input/find-by-id/$inputId'));
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -347,7 +347,7 @@ class _InputPageState extends State<InputPage> {
 
   // Function to handle the file download based on the file URL
   Future<void> downloadFile(String inputId) async {
-    final url = Uri.parse('http://localhost:8089/input/download-by--input-id/$inputId');
+    final url = Uri.parse('http://192.168.155.110:8089/input/download-by--input-id/$inputId');
 
     try {
       final response = await http.get(url);
@@ -370,7 +370,7 @@ class _InputPageState extends State<InputPage> {
   Future<void> createInput(Map<String, dynamic> inputData, List<Uint8List> fileBytesList, List<String> originalFileNames) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:8089/input/create'),
+      Uri.parse('http://192.168.155.110:8089/input/create'),
     );
 
     // Add input data to request fields
@@ -405,7 +405,7 @@ class _InputPageState extends State<InputPage> {
       List<String> originalFileNames) async {
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse('http://localhost:8089/input/update/$inputId'),
+      Uri.parse('http://192.168.155.110:8089/input/update/$inputId'),
     );
 
     // Add input data to request fields

@@ -38,7 +38,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
 
   Future<void> fetchData() async {
     final response = await http.get(
-        Uri.parse('http://localhost:8089/vw-elemen/get-all'));
+        Uri.parse('http://192.168.155.110:8089/vw-elemen/get-all'));
     if (response.statusCode == 200) {
       setState(() {
         _kategoriElemenList = json.decode(response.body) as List<dynamic>;
@@ -47,7 +47,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchTahunList() async {
-    final response = await http.get(Uri.parse('http://localhost:8089/tahun/find-all'));
+    final response = await http.get(Uri.parse('http://192.168.155.110:8089/tahun/find-all'));
     if (response.statusCode == 200) {
       List<dynamic> tahunList = json.decode(response.body) as List<dynamic>;
       return tahunList.map((tahun) => tahun as Map<String, dynamic>).toList();
@@ -68,7 +68,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
 
   Future<void> deleteKategoriElemen(String kategoriElemenId) async {
     final response = await http.delete(
-        Uri.parse('http://localhost:8089/elemen/delete/$kategoriElemenId'));
+        Uri.parse('http://192.168.155.110:8089/elemen/delete/$kategoriElemenId'));
     if (response.statusCode == 200) {
       // Refresh the data after successful deletion
       fetchData();
@@ -183,7 +183,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   Future<void> createKategoriElemen(Map<String, dynamic> kategoriElemenData) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:8089/elemen/create'),
+      Uri.parse('http://192.168.155.110:8089/elemen/create'),
     );
 
     // Add the komponenData as multipart/form-data
@@ -205,7 +205,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
 
   Future<Map<String, dynamic>> fetchExistingData(String kategoriElemenId) async {
     final response = await http.get(
-        Uri.parse('http://localhost:8089/elemen/find-by-id/$kategoriElemenId'));
+        Uri.parse('http://192.168.155.110:8089/elemen/find-by-id/$kategoriElemenId'));
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
@@ -219,7 +219,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
       Map<String, dynamic> updatedData) async {
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse('http://localhost:8089/elemen/update/$kategoriElemenId'),
+      Uri.parse('http://192.168.155.110:8089/elemen/update/$kategoriElemenId'),
     );
 
     // Add input data to request fields
