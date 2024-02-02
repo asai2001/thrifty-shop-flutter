@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttter_akreditasi/submenu.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class TahunPage extends StatefulWidget {
   const TahunPage({super.key});
@@ -16,12 +19,39 @@ class TahunPage extends StatefulWidget {
 
 class _TahunPageState extends State<TahunPage> {
   late List<Map<String, dynamic>> _tahunList = []; // Inisialisasi dengan list kosong
-
+  late WebSocketChannel _channel;
 
   @override
   void initState() {
     super.initState();
+    checkLoginStatus();
     _getTahunList();
+
+    // Ganti URL WebSocket sesuai dengan backend Anda
+    _channel = IOWebSocketChannel.connect('ws://localhost:8089/tahun/websocket');
+    _channel.stream.listen((data) {
+      // Pembaruan otomatis saat menerima perubahan dari server
+      _getTahunList();
+    });
+  }
+
+
+@override
+void dispose() {
+  _channel.sink.close(); // Tutup koneksi WebSocket saat widget dihancurkan
+  super.dispose();
+}
+
+
+  // Check login status before loading the page
+  void checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (!isLoggedIn) {
+      // Jika tidak login, arahkan ke halaman login
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 
   Future<void> _getTahunList() async {
@@ -38,12 +68,18 @@ class _TahunPageState extends State<TahunPage> {
 
 
   Future<void> createTahun(Map<String, dynamic> tahunData) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? prodiId = prefs.getString('prodiId');
+
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('http://localhost:8089/tahun/create'),
     );
 
-    // Add the komponenData as multipart/form-data
+    // Tambahkan prodiId ke data tahun
+    tahunData['prodiId'] = prodiId;
+
+    // Add the tahunData as multipart/form-data
     tahunData.forEach((key, value) {
       request.fields[key] = value.toString();
     });
@@ -323,29 +359,41 @@ class _TahunPageState extends State<TahunPage> {
     }
   }
 
-  Future<void> edittahun(String tahunId,
-      Map<String, dynamic> updatedData) async {
-    var request = http.MultipartRequest(
-      'PUT',
-      Uri.parse('http://localhost:8089/tahun/update/$tahunId'),
-    );
+  Future<void> edittahun(String tahunId, Map<String, dynamic> updatedData) async {
+    try {
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('http://localhost:8089/tahun/update/$tahunId'),
+      );
 
-    // Add input data to request fields
-    updatedData.forEach((key, value) {
-      request.fields[key] = value.toString();
-    });
+      // Add input data to request fields
+      updatedData.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
 
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
+      // Simpan prodiId dari SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? prodiId = prefs.getString('prodiId');
+      if (prodiId != null) {
+        request.fields['prodiId'] = prodiId;
+      }
 
-    if (response.statusCode == 200) {
-      // Refresh the data after successful update
-      _getTahunList();
-    } else {
-      // Show an error message or handle the error
-      print('Failed to update kategori elemen');
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        // Refresh the data after successful update
+        _getTahunList();
+      } else {
+        // Show an error message or handle the error
+        print('Failed to update kategori elemen');
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error: $e');
     }
   }
+
 
   void showEditTahunDialog(BuildContext context, String tahunId) async {
     Map<String, dynamic> existingData = await fetchExistingData(tahunId);

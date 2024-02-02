@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class KomponenPage extends StatefulWidget {
   const KomponenPage({super.key});
 
@@ -19,6 +21,7 @@ class _KomponenPageState extends State<KomponenPage> {
   @override
   void initState() {
     super.initState();
+    checkLoginStatus();
     fetchData();
     _fetchKategoriElemenList().then((kategoriList) {
       if (kategoriList.isNotEmpty) {
@@ -29,6 +32,18 @@ class _KomponenPageState extends State<KomponenPage> {
       }
     });
   }
+
+  // Check login status before loading the page
+  void checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (!isLoggedIn) {
+      // Jika tidak login, arahkan ke halaman login
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
+  }
+
 
   Future<void> fetchData() async {
     final response = await http.get(
@@ -162,10 +177,16 @@ class _KomponenPageState extends State<KomponenPage> {
 
 
   Future<void> createKomponen(Map<String, dynamic> komponenData) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? prodiId = prefs.getString('prodiId');
+
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('http://localhost:8089/komponen/create'),
     );
+
+    // Tambahkan prodiId ke data tahun
+    komponenData['prodiId'] = prodiId;
 
     // Add the komponenData as multipart/form-data
     komponenData.forEach((key, value) {
@@ -207,6 +228,13 @@ class _KomponenPageState extends State<KomponenPage> {
     updatedData.forEach((key, value) {
       request.fields[key] = value.toString();
     });
+
+    // Simpan prodiId dari SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? prodiId = prefs.getString('prodiId');
+    if (prodiId != null) {
+      request.fields['prodiId'] = prodiId;
+    }
 
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);

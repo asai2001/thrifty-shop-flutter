@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Input Pernyataan Kriteria SIMFT AKREDITASI</title>
+</head>
+<body>
+    <header>
+        <h1>Input Pernyataan Kriteria SIMFT AKREDITASI</h1>
+    </header>
+    <main>
+        <section class="form-container">
+            <form action="#">
+                <label for="simft-akreditasi">SIMFT Akreditasi</label>
+                <select name="simft-akreditasi" id="simft-akreditasi">
+                    <option value="1">A</option>
+                    <option value="2">B</option>
+                    <option value="3">C</option>
+                    <option value="4">D</option>
+                </select>
+                <br>
+                <label for="tahun">Tahun</label>
+                <input type="number" name="tahun" id="tahun" min="2000" max="2099" required>
+                <br>
+                <input type="submit" value="Submit">
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>Logged as prodi : click to <a href="#">logout</a></p>
+    </footer>
+</body>
+</html>

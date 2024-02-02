@@ -2,7 +2,7 @@ version: "3.9"
 services:
   web:
     build: .
-    image: "images/19533119_akreditasi:latest"  # Anda mungkin ingin mengganti "iamges" menjadi "images"
+    image: "asai2001/19533119_akreditasi:latest"  # Anda mungkin ingin mengganti "iamges" menjadi "images"
     restart: always
     container_name: 19533119_akreditasi
     ports:

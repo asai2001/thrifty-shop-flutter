@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttter_akreditasi/Theme_Provider.dart';
 import 'package:fluttter_akreditasi/input.dart';
 import 'package:fluttter_akreditasi/kategori_elemen.dart';
+import 'package:fluttter_akreditasi/login_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 import 'komponen.dart';
@@ -13,9 +15,19 @@ void main() {
   runApp(const MyApp());
 }
 
+Future<void> _checkLogin(BuildContext context) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+  if (!isLoggedIn) {
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+}
+
+
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +36,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-      initialRoute: '/input',
+      initialRoute: '/login',
       routes: {
-        '/komponen': (context) => const KomponenPage(),
-        '/input': (context) => const InputPage(),
-        '/elemen': (context) => const KategoriElemenPage(),
+        '/login': (context) => LoginScreen(),
+        '/komponen': (context) {
+          _checkLogin(context);
+          return const KomponenPage();
+        },
+        '/input': (context) {
+          _checkLogin(context);
+          return const InputPage();
+        },
+        '/elemen': (context) {
+          _checkLogin(context);
+          return const KategoriElemenPage();
+        },
       },
     );
   }

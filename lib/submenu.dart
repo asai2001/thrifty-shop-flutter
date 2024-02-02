@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttter_akreditasi/tahun.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'input.dart';
 import 'kategori_elemen.dart';
@@ -123,7 +124,7 @@ class _SubmenuState extends State<Submenu> {
             Expanded(
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: _buildLogoutItem(),
+                child: _buildLogoutItem(context),
               ),
             ),
           ],
@@ -197,16 +198,19 @@ class _SubmenuState extends State<Submenu> {
   }
 }
 
-void _handleLogout() {
-  // Tambahkan kode logout Anda di sini
-  // Misalnya, hapus token otentikasi dan arahkan pengguna kembali ke halaman login.
+void _handleLogout(BuildContext context, String? username) {
+  _clearSharedPreferences();
+  Navigator.pushReplacementNamed(context, '/login'); // Ganti '/login' dengan rute halaman login Anda
 }
 
-Widget _buildLogoutItem() {
+Widget _buildLogoutItem(BuildContext context) {
   return Material(
     color: Colors.transparent,
     child: InkWell(
-      onTap: _handleLogout,
+      onTap: () async {
+        String? username = await _getSavedUsername();
+        _handleLogout(context, username);
+      },
       child: Container(
         decoration: BoxDecoration(
           border: const Border(
@@ -215,16 +219,40 @@ Widget _buildLogoutItem() {
               width: 1,
             ),
           ),
+          gradient: LinearGradient(
+            colors: [Colors.red, Colors.red],
+          ),
         ),
         child: ListTile(
-          title: Text(
-            'Logged as prodi : click to logout',
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'Roboto',
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          title: FutureBuilder<String?>(
+            // Mendapatkan username dari shared preferences
+            future: _getSavedUsername(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator(); // Tampilkan loading spinner jika masih dalam proses mendapatkan username
+              } else if (snapshot.hasError) {
+                return Text(
+                  'Error retrieving username',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Roboto',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              } else {
+                // Tampilkan informasi username yang berhasil diambil
+                return Text(
+                  'Logged as ${snapshot.data} : click to logout',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Roboto',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }
+            },
           ),
           leading: Icon(
             Icons.logout,
@@ -234,4 +262,14 @@ Widget _buildLogoutItem() {
       ),
     ),
   );
+}
+
+Future<String?> _getSavedUsername() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('username'); // Default 'Prodi' jika tidak ada username yang tersimpan
+}
+
+Future<void> _clearSharedPreferences() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
 }

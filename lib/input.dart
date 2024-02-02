@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:typed_data';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -35,6 +36,7 @@ class _InputPageState extends State<InputPage> {
   @override
   void initState() {
     super.initState();
+    checkLoginStatus();
     fetchData();
     fetchCategories();
     fetchYears();
@@ -46,6 +48,17 @@ class _InputPageState extends State<InputPage> {
         });
       }
     });
+  }
+
+  // Check login status before loading the page
+  void checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (!isLoggedIn) {
+      // Jika tidak login, arahkan ke halaman login
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 
   Future<Map<String, dynamic>> findFilesByInputId(String inputId) async {
@@ -368,11 +381,16 @@ class _InputPageState extends State<InputPage> {
 
 
   Future<void> createInput(Map<String, dynamic> inputData, List<Uint8List> fileBytesList, List<String> originalFileNames) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? prodiId = prefs.getString('prodiId');
+
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('http://localhost:8089/input/create'),
     );
 
+    // Tambahkan prodiId ke data tahun
+    inputData['prodiId'] = prodiId;
     // Add input data to request fields
     inputData.forEach((key, value) {
       request.fields[key] = value.toString();
@@ -413,6 +431,13 @@ class _InputPageState extends State<InputPage> {
       request.fields[key] = value.toString();
     });
 
+    // Simpan prodiId dari SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? prodiId = prefs.getString('prodiId');
+    if (prodiId != null) {
+      request.fields['prodiId'] = prodiId;
+    }
+    
     // Add multiple files with the key "files"
     for (int i = 0; i < fileBytesList.length; i++) {
       request.files.add(
@@ -1375,14 +1400,6 @@ class _CreateInputDialogState extends State<CreateInputDialog> {
     );
   }
 }
-
-
-
-
-
-
-
-
 
 
 class EditInputDialog extends StatefulWidget {

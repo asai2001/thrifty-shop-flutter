@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class KategoriElemenPage extends StatefulWidget {
   const KategoriElemenPage({super.key});
@@ -11,7 +12,6 @@ class KategoriElemenPage extends StatefulWidget {
   @override
   _KategoriElemenPageState createState() => _KategoriElemenPageState();
 }
-
 
 
 class _KategoriElemenPageState extends State<KategoriElemenPage> {
@@ -23,6 +23,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   @override
   void initState() {
     super.initState();
+    checkLoginStatus();
     fetchData();
     _fetchTahunList().then((tahunList) {
       if (tahunList.isNotEmpty) {
@@ -33,6 +34,18 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
       }
     });
   }
+
+  // Check login status before loading the page
+  void checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (!isLoggedIn) {
+      // Jika tidak login, arahkan ke halaman login
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
+  }
+
 
 
 
@@ -181,11 +194,16 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   }
 
   Future<void> createKategoriElemen(Map<String, dynamic> kategoriElemenData) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? prodiId = prefs.getString('prodiId');
+
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('http://localhost:8089/elemen/create'),
     );
 
+    // Tambahkan prodiId ke data tahun
+    kategoriElemenData['prodiId'] = prodiId;
     // Add the komponenData as multipart/form-data
     kategoriElemenData.forEach((key, value) {
       request.fields[key] = value.toString();
@@ -226,6 +244,13 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
     updatedData.forEach((key, value) {
       request.fields[key] = value.toString();
     });
+
+    // Simpan prodiId dari SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? prodiId = prefs.getString('prodiId');
+    if (prodiId != null) {
+      request.fields['prodiId'] = prodiId;
+    }
 
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
