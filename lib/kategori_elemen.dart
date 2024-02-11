@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fluttter_akreditasi/submenu.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,6 +20,7 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
   List<dynamic> _kategoriElemenList = [];
   List<Map<String, dynamic>> _tahunList = [];
   String selectedTahun = "0";
+  late Timer _timer; // Objek Timer
 
 
   @override
@@ -33,7 +36,23 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
         });
       }
     });
+
+    // Set interval polling (misalnya setiap 30 detik)
+    const Duration pollingInterval = Duration(seconds: 15);
+
+    // Gunakan Timer.periodic untuk memanggil fungsi _getTahunList secara berkala
+    _timer = Timer.periodic(pollingInterval, (Timer timer) {
+      fetchData();
+    });
   }
+
+  @override
+  void dispose() {
+    // Pastikan untuk membatalkan Timer saat widget di dispose
+    _timer.cancel();
+    super.dispose();
+  }
+
 
   // Check login status before loading the page
   void checkLoginStatus() async {
@@ -45,9 +64,6 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
       Navigator.of(context).pushReplacementNamed('/login');
     }
   }
-
-
-
 
   Future<void> fetchData() async {
     final response = await http.get(
@@ -149,7 +165,10 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: const Text('Batal'),
+                      child: const Text(
+                        'Batal',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -164,7 +183,10 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: const Text('Hapus'),
+                      child: const Text(
+                        'Hapus',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -281,8 +303,18 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
               onPressed: () {
                 showCreateKategoriElemenDialog(context);
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Buat Kriteria Baru'),
+              icon: const Icon(
+                Icons.add,
+                color: Colors.white, // Atur warna ikon menjadi putih
+              ),
+              label: const Text(
+                'Buat Kriteria Baru',
+                style: TextStyle(
+                  color: Colors.white, // Atur warna teks menjadi putih
+                  fontSize: 16.0,
+                ),
+                textAlign: TextAlign.center, // Menengahkan teks secara horizontal
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
                 textStyle: const TextStyle(fontSize: 16.0),
@@ -370,7 +402,10 @@ class _KategoriElemenPageState extends State<KategoriElemenPage> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
                                 ),
-                                child: const Text('Delete'),
+                                child: const Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ],
                           )),
@@ -565,7 +600,10 @@ class _CustomDialogState extends State<CustomDialog> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: const Text('Simpan'),
+                child: const Text(
+                  'Simpan',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -752,7 +790,10 @@ class _CreateKategoriElemenDialogState
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: const Text('Simpan'),
+                child: const Text(
+                  'Simpan',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),

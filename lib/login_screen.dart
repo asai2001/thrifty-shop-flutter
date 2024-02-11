@@ -159,7 +159,7 @@ class LoginScreen extends StatelessWidget {
                             children: [
                               Text(
                                 loginResponse['message'],
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: Colors.black),
                               ),
                               SizedBox(height: 20),
                               Center(
@@ -167,7 +167,10 @@ class LoginScreen extends StatelessWidget {
                                   onPressed: () {
                                     Navigator.of(context).pop(); // Tutup dialog
                                   },
-                                  child: Text('OK'),
+                                  child: const Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.blue, // Warna latar belakang tombol
                                     shape: RoundedRectangleBorder(
@@ -178,7 +181,7 @@ class LoginScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          backgroundColor: Colors.black,
+                          backgroundColor: Colors.white,
                         );
                       },
                     );
@@ -196,6 +199,7 @@ class LoginScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18, // Ukuran teks tombol
                     fontWeight: FontWeight.bold, // Ketebalan teks tombol
+                    color: Colors.white, // Warna teks tombol
                   ),
                 ),
               ),

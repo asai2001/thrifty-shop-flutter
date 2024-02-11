@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttter_akreditasi/tahun.dart';
+import 'package:fluttter_akreditasi/user.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,14 +25,15 @@ class _SubmenuState extends State<Submenu> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Center(
-        child: LoadingAnimationWidget.dotsTriangle(
-          // leftDotColor: const Color(0xFF1A1A3F),
-          // rightDotColor: const Color(0xFFEA3799),
-          color: Colors.white,
-          size: 150,
-        ),
-      ),
+      builder: (context) =>
+          Center(
+            child: LoadingAnimationWidget.dotsTriangle(
+              // leftDotColor: const Color(0xFF1A1A3F),
+              // rightDotColor: const Color(0xFFEA3799),
+              color: Colors.white,
+              size: 150,
+            ),
+          ),
     );
   }
 
@@ -46,7 +48,6 @@ class _SubmenuState extends State<Submenu> {
     Future.delayed(const Duration(seconds: 1), () {
       Navigator.pop(context); // Tutup loading dialog
       widget.onMenuItemSelected(title);
-      Navigator.pop(context); // Tutup drawer
       if (title == 'Input') {
         Navigator.pushReplacement(
           context,
@@ -80,7 +81,16 @@ class _SubmenuState extends State<Submenu> {
             transitionDuration: Duration.zero,
           ),
         );
+      } else if (title == 'User Control') {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => UserControlPage(),
+            transitionDuration: Duration.zero,
+          ),
+        );
       }
+
     });
   }
 
@@ -119,6 +129,7 @@ class _SubmenuState extends State<Submenu> {
                 _buildMenuItem('Pernyataan', Icons.extension),
                 _buildMenuItem('Kriteria', Icons.category),
                 _buildMenuItem('Tahun', Icons.calendar_today),
+                _buildMenuItem('User Control', Icons.account_box),
               ],
             ),
             Expanded(
@@ -139,16 +150,6 @@ class _SubmenuState extends State<Submenu> {
     bool isHovered = false;
 
     return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          isHovered = true;
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          isHovered = false;
-        });
-      },
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -209,7 +210,7 @@ Widget _buildLogoutItem(BuildContext context) {
     child: InkWell(
       onTap: () async {
         String? username = await _getSavedUsername();
-        _handleLogout(context, username);
+        _showLogoutConfirmation(context, username);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -220,7 +221,7 @@ Widget _buildLogoutItem(BuildContext context) {
             ),
           ),
           gradient: LinearGradient(
-            colors: [Colors.red, Colors.red],
+            colors: [Colors.black87, Colors.lightBlue],
           ),
         ),
         child: ListTile(
@@ -263,6 +264,46 @@ Widget _buildLogoutItem(BuildContext context) {
     ),
   );
 }
+
+void _showLogoutConfirmation(BuildContext context, String? username) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          'Logout Confirmation',
+          style: TextStyle(color: Colors.black),
+        ),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Tutup dialog
+                },
+                child: Text('Cancel', style: TextStyle(color: Colors.black)),
+              ),
+              TextButton(
+                onPressed: () {
+                  _handleLogout(context, username);
+                },
+                child: Text('Logout', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        ],
+        backgroundColor: Colors.white,
+      );
+    },
+  );
+}
+
+
 
 Future<String?> _getSavedUsername() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();

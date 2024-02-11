@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttter_akreditasi/submenu.dart';
@@ -31,6 +33,7 @@ class _InputPageState extends State<InputPage> {
   List<Map<String, dynamic>> komponenOptions = [];
   String selectedKomponen = "0";
   String selectedNamaKategori = "0";
+  late Timer _timer;
 
 
   @override
@@ -48,6 +51,20 @@ class _InputPageState extends State<InputPage> {
         });
       }
     });
+    // Set interval polling (misalnya setiap 30 detik)
+    const Duration pollingInterval = Duration(seconds: 15);
+
+    // Gunakan Timer.periodic untuk memanggil fungsi _getTahunList secara berkala
+    _timer = Timer.periodic(pollingInterval, (Timer timer) {
+      fetchData();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Pastikan untuk membatalkan Timer saat widget di dispose
+    _timer.cancel();
+    super.dispose();
   }
 
   // Check login status before loading the page
@@ -299,7 +316,10 @@ class _InputPageState extends State<InputPage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: const Text('Batal'),
+                      child: const Text(
+                        'Batal',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -314,7 +334,10 @@ class _InputPageState extends State<InputPage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: const Text('Hapus'),
+                      child: const Text(
+                        'Hapus',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -502,8 +525,18 @@ class _InputPageState extends State<InputPage> {
                       onPressed: () {
                         showCreateInputDialog(context);
                       },
-                      icon: const Icon(Icons.add),
-                      label: const Text('Buat Input Baru'),
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white, // Atur warna ikon menjadi putih
+                      ),
+                      label: const Text(
+                        'Buat Input Baru',
+                        style: TextStyle(
+                          color: Colors.white, // Atur warna teks menjadi putih
+                          fontSize: 16.0,
+                        ),
+                        textAlign: TextAlign.center, // Menengahkan teks secara horizontal
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.indigo,
                         textStyle: const TextStyle(fontSize: 16.0),
@@ -1790,7 +1823,10 @@ class _EditInputDialogState extends State<EditInputDialog> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: const Text('Simpan'),
+                  child: const Text(
+                    'Simpan',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +6,6 @@ import 'package:fluttter_akreditasi/submenu.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 class TahunPage extends StatefulWidget {
   const TahunPage({super.key});
@@ -19,7 +18,7 @@ class TahunPage extends StatefulWidget {
 
 class _TahunPageState extends State<TahunPage> {
   late List<Map<String, dynamic>> _tahunList = []; // Inisialisasi dengan list kosong
-  late WebSocketChannel _channel;
+  late Timer _timer; // Objek Timer
 
   @override
   void initState() {
@@ -27,21 +26,21 @@ class _TahunPageState extends State<TahunPage> {
     checkLoginStatus();
     _getTahunList();
 
-    // Ganti URL WebSocket sesuai dengan backend Anda
-    _channel = IOWebSocketChannel.connect('ws://localhost:8089/tahun/websocket');
-    _channel.stream.listen((data) {
-      // Pembaruan otomatis saat menerima perubahan dari server
+    // Set interval polling (misalnya setiap 30 detik)
+    const Duration pollingInterval = Duration(seconds: 15);
+
+    // Gunakan Timer.periodic untuk memanggil fungsi _getTahunList secara berkala
+    _timer = Timer.periodic(pollingInterval, (Timer timer) {
       _getTahunList();
     });
   }
 
-
-@override
-void dispose() {
-  _channel.sink.close(); // Tutup koneksi WebSocket saat widget dihancurkan
-  super.dispose();
-}
-
+  @override
+  void dispose() {
+    // Pastikan untuk membatalkan Timer saat widget di dispose
+    _timer.cancel();
+    super.dispose();
+  }
 
   // Check login status before loading the page
   void checkLoginStatus() async {
@@ -187,7 +186,10 @@ void dispose() {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: const Text('Batal'),
+                      child: const Text(
+                        'Batal',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -202,7 +204,10 @@ void dispose() {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: const Text('Hapus'),
+                      child: const Text(
+                        'Hapus',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -231,8 +236,18 @@ void dispose() {
               onPressed: () {
                 showCreateTahunDialog(context);
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Buat Tahun Baru'),
+              icon: const Icon(
+                Icons.add,
+                color: Colors.white, // Atur warna ikon menjadi putih
+              ),
+              label: const Text(
+                'Buat Tahun Baru',
+                style: TextStyle(
+                  color: Colors.white, // Atur warna teks menjadi putih
+                  fontSize: 16.0,
+                ),
+                textAlign: TextAlign.center, // Menengahkan teks secara horizontal
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
                 textStyle: const TextStyle(fontSize: 16.0),
@@ -295,7 +310,10 @@ void dispose() {
                                 onPressed: () {
                                   showEditTahunDialog(context, tahun['tahunId']);
                                 },
-                                child: const Text('Edit'),
+                                child: const Text(
+                                  'Edit',
+                                  style: TextStyle(color: Colors.indigo),
+                                ),
                               ),
                               const SizedBox(width: 8.0),
                               ElevatedButton(
@@ -305,7 +323,10 @@ void dispose() {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
                                 ),
-                                child: const Text('Delete'),
+                                child: const Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ],
                           )),
@@ -514,7 +535,10 @@ class _CustomDialogState extends State<CustomDialog> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: const Text('Simpan'),
+                child: const Text(
+                  'Simpan',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -640,7 +664,10 @@ class _CreateTahunDialogState extends State<CreateTahunDialog> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: const Text('Simpan'),
+                child: const Text(
+                  'Simpan',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
